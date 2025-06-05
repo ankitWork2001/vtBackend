@@ -1,0 +1,4 @@
+
+exports.adminController = (req, res) => {
+};
+

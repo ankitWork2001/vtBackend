@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const getInTouchSchema = new mongoose.Schema({
   firstName: String,
@@ -11,4 +11,4 @@ const getInTouchSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("GetInTouch", getInTouchSchema);
+export const GetInTouchModel = mongoose.model("GetInTouch", getInTouchSchema);

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const testimonialSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -8,4 +8,4 @@ const testimonialSchema = new mongoose.Schema({
   isApproved: { type: Boolean, default: false },
 }, { timestamps: true });
 
-module.exports = mongoose.model("Testimonial", testimonialSchema);
+export const TestimonialModel = mongoose.model("Testimonial", testimonialSchema);

@@ -1,8 +1,9 @@
-const express = require('express');
+
+import express from 'express';
 const router = express.Router();
 
-const { InvoicesController } = require('../controllers/adminController');
 
-router.get('/invoice', InvoicesController);
+router.get('/invoice');
 
-module.exports = router;
+export { router as invoiceRouter };
+

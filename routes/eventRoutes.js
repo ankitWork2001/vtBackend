@@ -1,8 +1,8 @@
-const express = require('express');
+
+import express from 'express';
 const router = express.Router();
 
-const { EventController } = require('../controllers/adminController');
+router.get('/event');
 
-router.get('/Event', EventController);
+export { router as eventRouter };
 
-module.exports = router;

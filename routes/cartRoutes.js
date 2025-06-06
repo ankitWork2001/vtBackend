@@ -1,8 +1,9 @@
-const express = require('express');
+
+import express from 'express';
 const router = express.Router();
 
-const { CartController } = require('../controllers/adminController');
 
-router.get('/Cart', CartController);
+router.get('/cart');
 
-module.exports = router;
+export { router as cartRouter };
+

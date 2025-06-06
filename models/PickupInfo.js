@@ -1,4 +1,6 @@
-const mongoose = require("mongoose");
+
+import mongoose from "mongoose";
+
 
 const pickupInfoSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -11,4 +13,6 @@ const pickupInfoSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("PickupInfo", pickupInfoSchema);
+
+export const PickupModel = mongoose.model("PickupInfo", pickupInfoSchema);
+

@@ -1,8 +1,8 @@
-const express = require('express');
+
+import express from 'express';
 const router = express.Router();
 
-const { getAllUsers } = require('../controllers/adminController');
+router.get('/subscription');
 
-router.get('/getUsersDetails',getAllUsers);
+export { router as subscriptionRouter };
 
-module.exports = router;

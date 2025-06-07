@@ -1,17 +1,24 @@
-<<<<<<< HEAD
-const express = require('express');
-const router = express.Router();
-
-const { OrderController } = require('../controllers/adminController');
-
-router.get('/order', OrderController);
-
-module.exports = router;
-=======
 import express from 'express';
 const router = express.Router();
 
-router.get('/order');
+import {verifyToken} from '../middleware/authMiddleware.js'; // imported middleware to verify token
+// import {orderController} from "../controllers/orderController.js";
+
+import {
+  confirmOrder,
+  toGetOrders,
+  orderById,
+  orderCancelled,
+  orderDelivered
+} from '../controllers/orderController.js';
+
+
+//need to write middlewares
+router.post('/confirm',verifyToken, confirmOrder); 
+router.get('/', verifyToken, toGetOrders);
+router.get('/:id', verifyToken, orderById);
+router.get('/:id/cancelled',verifyToken,  orderCancelled);
+router.get('/:id/delivered', verifyToken, orderDelivered);
+
 
 export { router as orderRouter };
->>>>>>> 5d9bd2e4de015944f0d6aec92f6a77cd1c378a59

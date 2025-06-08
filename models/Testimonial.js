@@ -8,4 +8,4 @@ const testimonialSchema = new mongoose.Schema({
   isApproved: { type: Boolean, default: false },
 }, { timestamps: true });
 
-export const TestimonialModel = mongoose.model("Testimonial", testimonialSchema);
+export const Testimonial = mongoose.model("Testimonial", testimonialSchema);

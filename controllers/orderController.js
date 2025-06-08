@@ -11,7 +11,7 @@ export const confirmOrder = async (req, res) => {
     }
 
     try {
-        const newOrder = new Order({ userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
+        const newOrder = new OrderModel({ userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
     } catch (err) {
@@ -25,7 +25,7 @@ export const confirmOrder = async (req, res) => {
 export const toGetOrders = async (req, res) => {
     try{
         // const {userId} = req.User; using a middleware to get userId from token
-        const orders = await Order.find({ userId });
+        const orders = await OrderModel.find({ userId });
         res.json(orders);
 
     }catch(err){
@@ -46,7 +46,7 @@ export const orderById = async (req, res) => {
     }
 
     try {
-        const order = await Order.findById(id);
+        const order = await OrderModel.findById(id);
         if (!order) return res.status(404).json({ error: 'Order not found.' });
         res.json(order);
     } catch (err) {
@@ -64,7 +64,7 @@ export const orderCancelled = async (req, res) => {
     }
 
     try {
-        const order = await Order.findOne({ _id: id, status: 'cancelled' });
+        const order = await OrderModel.findOne({ _id: id, status: 'cancelled' });
         if (!order) return res.status(404).json({ error: 'Cancelled order not found.' });
         res.json(order);
     } catch (err) {
@@ -82,7 +82,7 @@ export const orderDelivered = async (req, res) => {
     }
 
     try {
-        const order = await Order.findOne({ _id: id, status: 'delivered' });
+        const order = await OrderModel.findOne({ _id: id, status: 'delivered' });
         if (!order) return res.status(404).json({ error: 'Delivered order not found.' });
         res.json(order);
     } catch (err) {

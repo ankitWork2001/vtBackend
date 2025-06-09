@@ -1,24 +1,7 @@
 import express from 'express';
 const router = express.Router();
+import * as orderController from "../controllers/orderController.js";
 
-import {verifyToken} from '../middleware/authMiddleware.js'; // imported middleware to verify token
-// import {orderController} from "../controllers/orderController.js";
-
-import {
-  confirmOrder,
-  toGetOrders,
-  orderById,
-  orderCancelled,
-  orderDelivered
-} from '../controllers/orderController.js';
-
-
-//need to write middlewares
-router.post('/confirm',verifyToken, confirmOrder); 
-router.get('/', verifyToken, toGetOrders);
-router.get('/:id', verifyToken, orderById);
-router.get('/:id/cancelled',verifyToken,  orderCancelled);
-router.get('/:id/delivered', verifyToken, orderDelivered);
-
+router.get('/order', orderController.orderController);
 
 export { router as orderRouter };

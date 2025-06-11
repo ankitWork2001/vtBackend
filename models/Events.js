@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema({
   title: String,
@@ -10,4 +10,4 @@ const eventSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
 }, { timestamps: true });
 
-module.exports = mongoose.model("Event", eventSchema);
+export const EventModel = mongoose.model("Event", eventSchema);

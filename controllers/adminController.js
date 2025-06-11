@@ -1,4 +1,3 @@
+export const adminController = (req, res) => {
 
-exports.adminController = (req, res) => {
 };
-

@@ -6,4 +6,3 @@ const router = express.Router();
 router.post("/pickup-information",verifyToken, createPickupInfo);
 
 export { router as pickupRouter };
-

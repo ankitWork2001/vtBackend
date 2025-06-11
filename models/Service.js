@@ -1,6 +1,4 @@
-
 import mongoose from "mongoose";
-
 
 const serviceSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
@@ -16,6 +14,4 @@ const serviceSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-
 export const ServiceModel = mongoose.model("Service", serviceSchema);
-

@@ -1,5 +1,3 @@
-
-
 import express from 'express';
 const router = express.Router();
 import * as pricingController from "../controllers/pricingPlanController.js";

@@ -1,6 +1,4 @@
-
 import mongoose from "mongoose";
-
 
 const settingSchema = new mongoose.Schema({
     siteName: { type: String, default: 'FreshFold' },
@@ -12,6 +10,4 @@ const settingSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-
 export const SettingModel = mongoose.model("Setting", settingSchema);
-

@@ -1,6 +1,4 @@
-
 import mongoose from "mongoose";
-
 
 const toDoTaskSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -12,6 +10,4 @@ const toDoTaskSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-
 export const TodoTaskModel = mongoose.model("ToDoTask", toDoTaskSchema);
-

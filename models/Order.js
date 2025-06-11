@@ -1,4 +1,6 @@
+
 import mongoose from "mongoose";
+
 
 const orderSchema = new mongoose.Schema({
     orderId: { type: String, unique: true, required: true },
@@ -42,4 +44,6 @@ const orderSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+
 export const OrderModel = mongoose.model("Order", orderSchema);
+

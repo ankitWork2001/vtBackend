@@ -1,7 +1,8 @@
 import express from 'express';
 const router = express.Router();
-import * as pickupController from "../controllers/pickupController.js";
 
-router.get('/pickup', pickupController.pickupController);
+router.post("/pickup-information", createPickupInfo);
+
+
 
 export { router as pickupRouter };

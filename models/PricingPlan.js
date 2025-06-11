@@ -1,4 +1,6 @@
+
 import mongoose from "mongoose";
+
 
 const pricingPlanSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true }, 
@@ -14,4 +16,6 @@ const pricingPlanSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+
 export const PricingModel = mongoose.model("PricingPlan", pricingPlanSchema);
+

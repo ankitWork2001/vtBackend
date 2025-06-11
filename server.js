@@ -5,7 +5,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 import { testimonialRouter } from "./routes/testimonialRoutes.js";
-import { authRouter } from "./routes/authRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
 import { adminRouter } from "./routes/adminRoutes.js";
 import { cartRouter } from "./routes/cartRoutes.js";

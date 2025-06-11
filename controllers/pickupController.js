@@ -1,3 +1,4 @@
-export const pickupController = (req, res) => {
-
+export const createPickupInfo = async (req, res) => {
+  
 };
+

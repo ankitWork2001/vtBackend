@@ -1,4 +1,6 @@
+
 import mongoose from "mongoose";
+
 
 const getInTouchSchema = new mongoose.Schema({
   firstName: String,
@@ -11,4 +13,6 @@ const getInTouchSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+
 export const GetInTouchModel = mongoose.model("GetInTouch", getInTouchSchema);
+

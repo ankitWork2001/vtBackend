@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-const express = require('express');
-const router = express.Router();
-
-const { getAllUsers } = require('../controllers/adminController');
-
-router.get('/getUsersDetails',getAllUsers);
-
-module.exports = router;
-=======
 import express from 'express';
 const router = express.Router();
 import * as subscriptionController from "../controllers/subscriptionController.js";
@@ -15,4 +5,3 @@ import * as subscriptionController from "../controllers/subscriptionController.j
 router.get('/subscription', subscriptionController.subscriptionController);
 
 export { router as subscriptionRouter };
->>>>>>> origin/main

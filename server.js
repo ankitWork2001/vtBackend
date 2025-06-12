@@ -21,9 +21,22 @@ import { settingRouter } from "./routes/settingRoutes.js";
 import { invoicesRouter } from "./routes/invoiceRoutes.js";
 import { todoRouter } from "./routes/todoRoutes.js";
 import { planpricingRouter } from "./routes/pricingPlanRoutes.js";
-
+import connectDB from './config/db.js';
 
 app.use(express.json());
+
+connectDB()
+.then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    }
+    );
+})
+.catch((error) => {
+  console.error('Database connection failed:', error);
+  process.exit(1); // Exit the process if the database connection fails
+});
+
 
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
@@ -43,4 +56,8 @@ app.use('/api/invoices', invoicesRouter);
 app.use('/api/todo', todoRouter);
 app.use('/api/planpricing', planpricingRouter);
 
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+app.get('/', (req, res) => {
+  res.send('Welcome to the API');
+}
+);
+

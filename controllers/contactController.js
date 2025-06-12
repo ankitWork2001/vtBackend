@@ -1,4 +1,4 @@
-import { GetInTouchModel } from "../models/GetInTouch";
+import { GetInTouchModel } from "../models/GetInTouch.js";
 
 export const submitContactForm = async (req, res) => {
   try {

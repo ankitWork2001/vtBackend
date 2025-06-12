@@ -1,7 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
+import connectDB from './config/db.js';
+connectDB();
 const app = express();
+
 const PORT = process.env.PORT || 5000;
 
 import { testimonialRouter } from "./routes/testimonialRoutes.js";
@@ -12,7 +15,7 @@ import { cartRouter } from "./routes/cartRoutes.js";
 import { servicesRouter } from "./routes/serviceRoutes.js";
 import { contactRouter } from "./routes/contactRoutes.js";
 import { pickupRouter } from "./routes/pickupRoutes.js";
-import { orderRouter } from "./routes/orderRoutes.js";
+import { orderRouter } from "./routes/orderRoutes.js"; 
 import { notificationRouter } from "./routes/notificationRoutes.js";
 import { subscriptionRouter } from "./routes/subscriptionRoutes.js";
 import { dashboardRouter } from "./routes/dashboardRoutes.js";

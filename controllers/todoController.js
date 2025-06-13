@@ -18,9 +18,9 @@ export const getAllTodoController = async (req, res) => {
 export const createTodoController = async (req, res) => {
     try {
         const { description, dueDate, isStarred } = req.body;
-        // const userId = req.user.id;
+        const userId = req.user.id;
 
-        const userId = req.body.id;
+        // const userId = req.body.id;
 
         if (!description || !dueDate || !isStarred) {
             return res.status(400).json({ success: false, message: "Each field is required." });

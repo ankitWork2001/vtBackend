@@ -1,11 +1,12 @@
 import express from 'express';
 const router = express.Router();
 import * as pricingPlanController from "../controllers/pricingPlanController.js";
-
-router.get('/', pricingPlanController.pricingController);
-router.get('/:id', pricingPlanController.specificPlanController);
-router.post('/', pricingPlanController.createPlanController);
-router.put('/:id', pricingPlanController.updatePlanController);
-router.delete('/:id', pricingPlanController.deletePlanController);
+import { verifyToken } from '../middleware/authMiddleware.js'
+import { authorizeRoles } from '../middleware/roleMiddleware.js'
+router.get('/allpricingplan', verifyToken, authorizeRoles, pricingPlanController.pricingController);
+router.get('/perplan/:id', verifyToken, authorizeRoles, pricingPlanController.specificPlanController);
+router.post('/createplan', verifyToken, authorizeRoles, pricingPlanController.createPlanController);
+router.put('/updateplan/:id', verifyToken, authorizeRoles, pricingPlanController.updatePlanController);
+router.delete('/deleteplan/:id', verifyToken, authorizeRoles, pricingPlanController.deletePlanController);
 
 export { router as planpricingRouter };

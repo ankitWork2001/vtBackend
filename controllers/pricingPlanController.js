@@ -40,7 +40,19 @@ export const createPlanController = async (req, res) => {
             status,
             sortOrder
         } = req.body;
-
+        if (
+            name == null ||
+            description == null ||
+            features == null ||
+            monthlyPrice == null ||
+            yearlyPrice == null ||
+            currency == null ||
+            isPopular == null ||
+            status == null ||
+            sortOrder == null
+        ) {
+            return res.status(400).json({ success: false, message: "Please enter information in all fields" });
+        }
         const newPlan = new PricingModel({
             name,
             description,
@@ -76,14 +88,14 @@ export const updatePlanController = async (req, res) => {
         const updatePlan = await PricingModel.findByIdAndUpdate(
             id,
             updatedData,
-            {new:true,runValidators:true}
+            { new: true, runValidators: true }
         );
 
-        if(!updatePlan){
-            return res.status(400).json({success:false,message:"pricing plan not found with this ID"})
+        if (!updatePlan) {
+            return res.status(400).json({ success: false, message: "pricing plan not found with this ID" })
         }
 
-        res.status(200).json({success:true,message:"pricing plan updated successfully",data:updatePlan})
+        res.status(200).json({ success: true, message: "pricing plan updated successfully", data: updatePlan })
 
 
     } catch (error) {
@@ -92,15 +104,15 @@ export const updatePlanController = async (req, res) => {
 
 }
 
-export const deletePlanController = async(req, res) => {
+export const deletePlanController = async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         const deletePlan = await PricingModel.findByIdAndDelete(id);
-        if(!deletePlan){
-            return res.status(400).json({success:false,message:"pricing plan not found with this ID"});
+        if (!deletePlan) {
+            return res.status(400).json({ success: false, message: "pricing plan not found with this ID" });
         }
-        res.status(200).json({success:true,message:"pricing plan deleted successfully", data:deletePlan})
+        res.status(200).json({ success: true, message: "pricing plan deleted successfully", data: deletePlan })
     } catch (error) {
-        res.status(500).json({success:false,error:error.message})
+        res.status(500).json({ success: false, error: error.message })
     }
 }

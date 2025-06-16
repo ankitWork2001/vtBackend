@@ -19,12 +19,12 @@ export const updateUserProfile = async (req, res) => {
     const user = await UserModel.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const { firstName, lastName, address, phone } = req.body;
+    const { userName, address, profileImageUrl ,email } = req.body;
 
-    user.firstName = firstName || user.firstName;
-    user.lastName = lastName || user.lastName;
-    user.address = address || user.address;
-    user.phone = phone || user.phone;
+    if (userName) user.userName = userName; // user schema also updated
+    if (email) user.email = email;
+    if (address) user.address = address;
+    if (profileImageUrl) user.profileImageUrl = profileImageUrl;
 
     const updatedUser = await user.save();
     res.json({ message: "Profile updated", user: updatedUser });
@@ -36,17 +36,14 @@ export const updateUserProfile = async (req, res) => {
 // PUT /api/user/profileAcc
 export const updateUserAccount = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.query.id);
+    const user = await UserModel.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const { email, password } = req.body;
+    const { username, dob, language } = req.body;
 
-    if (email) user.email = email;
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      user.password = hashedPassword;
-    }
+    if (username) user.name = username; 
+    if (dob) user.dob = dob; // user schema updated for these 2 changes
+    if (language) user.language = language;
 
     await user.save();
     res.json({ message: "Account settings updated successfully" });

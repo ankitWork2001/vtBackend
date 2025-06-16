@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
+import connectDB from './config/db.js';
+
+connectDB();
 
 import { testimonialRouter } from "./routes/testimonialRoutes.js";
 import { authRouter } from "./routes/authRoutes.js";
@@ -21,6 +24,7 @@ import { settingRouter } from "./routes/settingRoutes.js";
 import { invoicesRouter } from "./routes/invoiceRoutes.js";
 import { todoRouter } from "./routes/todoRoutes.js";
 import { planpricingRouter } from "./routes/pricingPlanRoutes.js";
+import { teamRouter } from "./routes/teamRoute.js";
 
 
 app.use(express.json());
@@ -42,5 +46,6 @@ app.use('/api/settings', settingRouter);
 app.use('/api/invoices', invoicesRouter);
 app.use('/api/todo', todoRouter);
 app.use('/api/planpricing', planpricingRouter);
+app.use('/api/teammember', teamRouter);
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

@@ -9,3 +9,4 @@ router.put('/general', settingController.updateGeneralSettings);
 router.post('/general/logo', settingController.createGeneralSettings);
 
 export { router as settingRouter };
+ 

@@ -40,7 +40,7 @@ export const createGeneralSettings = async (req, res) => {
         const updated = await SettingModel.findOneAndUpdate(
             {},
             { logoUrl, updatedAt: Date.now() },
-            { new: true, upsert: true }
+            { new: true, upsert: true } 
         );
 
         res.status(200).json({ success: true, message: "Logo updated", data: updated });

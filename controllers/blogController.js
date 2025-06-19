@@ -1,4 +1,5 @@
 import { BlogModel } from "../models/Blog.js";
+import { BlogCategoryModel } from "../models/BlogCategory.js";
 
 //get all blogs
 export const allBlog = async (req, res) => {
@@ -61,6 +62,13 @@ export const createBlog = async (req, res) => {
         message: "Please enter information in all fields",
       });
     }
+    // Check if the category already exists, if not, create it
+    await BlogCategoryModel.updateOne(
+      { category },
+      { $setOnInsert: { category } },
+      { upsert: true }
+    );
+
     const newBlog = new BlogModel({
       title,
       subTitle,
@@ -140,4 +148,20 @@ export const deleteBlog = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
+};
+
+// Sync service categories to blog categories
+export const syncServiceCategoriesToBlogCategories = async () => {
+  const uniqueCategories = await ServiceModel.distinct("category");
+
+  await Promise.all(
+    uniqueCategories.map(async (category) => {
+      if (!category) return;
+      await BlogCategoryModel.updateOne(
+        { category },
+        { $setOnInsert: { category } },
+        { upsert: true }
+      );
+    })
+  );
 };

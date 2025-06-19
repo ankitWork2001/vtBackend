@@ -16,7 +16,9 @@ const blogSchema = new mongoose.Schema({
     type: String, // Cloudinary image URL
   },
   category: {
-    type: "string",
+    type: String,
+    required: true,
+    trim: true,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

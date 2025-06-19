@@ -56,9 +56,12 @@ export const updateSubscription = async (req, res) => {
         const { id } = req.params;
         const { planId, endDate } = req.body;
 
+        const isExpired = new Date(endDate) < new Date();
+        const status = isExpired ? "expired" : "active"; 
+
         const updated = await SubscriptionModel.findByIdAndUpdate(
             id,
-            { planId, endDate },
+            { planId, endDate, status }, 
             { new: true }
         );
 
@@ -66,8 +69,17 @@ export const updateSubscription = async (req, res) => {
             return res.status(404).json({ success: false, message: "Subscription not found" });
         }
 
-        res.status(200).json({ success: true, message: "Subscription updated", data: updated });
+        res.status(200).json({
+            success: true,
+            message: "Subscription updated",
+            data: updated
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Failed to update subscription", error: error.message });
+        res.status(500).json({
+            success: false,
+            message: "Failed to update subscription",
+            error: error.message
+        });
     }
 };
+

@@ -4,6 +4,22 @@ import * as dashboardController from "../controllers/dashboardController.js";
 import { verifyToken } from '../middleware/authMiddleware.js';
 
 
-router.get('/dashboard',verifyToken, dashboardController.getDashboardData);
+// router.get('/dashboard',verifyToken, dashboardController.getDashboardData);
+
+// 1. Get Dashboard Summary
+router.get('/dashboard/summary',verifyToken, dashboardController.getDashboardSummary);
+
+// 2. Get Sales Details
+router.get('/dashboard/sales', verifyToken, dashboardController.getSalesDetails);
+
+// 3. Get All Orders
+router.get('/orders', verifyToken, dashboardController.getOrders);
+
+// 4. Update Order Status
+router.put('/orders/:id/status', verifyToken, dashboardController.updateOrderStatus);
+
+// 5. Logout User
+router.post('/auth/logout', verifyToken, dashboardController.logoutUser);
+
 
 export { router as dashboardRouter };

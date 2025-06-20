@@ -7,7 +7,6 @@ import connectDB from './config/db.js';
 
 connectDB();
 
-
 import { authRouter } from "./routes/authRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
 import { adminRouter } from "./routes/adminRoutes.js";
@@ -24,7 +23,9 @@ import { eventRouter } from "./routes/eventRoutes.js";
 import { settingRouter } from "./routes/settingRoutes.js";
 import { invoicesRouter } from "./routes/invoiceRoutes.js"
 import { todoRouter } from "./routes/todoRoutes.js";
-import { planspricingRouter } from "./routes/pricingPlanRoutes.js";
+import { planpricingRouter } from "./routes/pricingPlanRoutes.js";
+
+connectDB();
  
 app.use(express.json());
 
@@ -57,7 +58,7 @@ app.use('/api/events', eventRouter);
 app.use('/api/settings', settingRouter);
 app.use('/api/invoices', invoicesRouter);
 app.use('/api/todo', todoRouter);
-app.use('/api/planpricing', planspricingRouter);
+app.use('/api/planpricing', planpricingRouter);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the API');

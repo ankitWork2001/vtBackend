@@ -5,6 +5,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 import connectDB from './config/db.js';
 
+connectDB();
+
 import { authRouter } from "./routes/authRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
 import { adminRouter } from "./routes/adminRoutes.js";
@@ -13,7 +15,7 @@ import { testimonialRouter } from "./routes/testimonialRoutes.js";
 import { servicesRouter } from "./routes/serviceRoutes.js";
 import { contactRouter } from "./routes/contactRoutes.js";
 import { pickupRouter } from "./routes/pickupRoutes.js";
-import { orderRouter } from "./routes/orderRoutes.js";
+import { orderRouter } from "./routes/orderRoutes.js"; 
 import { notificationRouter } from "./routes/notificationRoutes.js";
 import { subscriptionRouter } from "./routes/subscriptionRoutes.js";
 import { dashboardRouter } from "./routes/dashboardRoutes.js";
@@ -26,6 +28,19 @@ import { planpricingRouter } from "./routes/pricingPlanRoutes.js";
 connectDB();
  
 app.use(express.json());
+
+connectDB()
+.then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    }
+    );
+})
+.catch((error) => {
+  console.error('Database connection failed:', error);
+  process.exit(1); // Exit the process if the database connection fails
+});
+
 
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
@@ -45,4 +60,8 @@ app.use('/api/invoices', invoicesRouter);
 app.use('/api/todo', todoRouter);
 app.use('/api/planpricing', planpricingRouter);
 
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+app.get('/', (req, res) => {
+  res.send('Welcome to the API');
+}
+);
+

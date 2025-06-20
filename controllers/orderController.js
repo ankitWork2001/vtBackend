@@ -87,5 +87,197 @@ export const orderDelivered = async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+}
 
+// export const createOrder = async (req, res) => {
+//     try {
+//         const {id} = req.params;
+//         const {
+
+//             customerName,
+//             customerAddress,
+//             pickupDate,
+//             deliveryDate,
+//             orderType,
+//             services,
+//             subTotal,
+//             taxAmount = 0,
+//             discountAmount = 0,
+//             totalAmount,
+//             paymentMethod,
+//             notes
+//         } = req.body;
+
+//         if (!customerName || !orderType || !services || !subTotal || !totalAmount) {
+//             return res.status(400).json({ success: false, message: "Missing required fields" });
+//         }
+
+//         if (!mongoose.Types.ObjectId.isValid(id)) {
+//             return res.status(400).json({ success: false, message: "Invalid userId" });
+//         }
+
+//         const user = await UserModel.findById(id);
+//         if (!user) {
+//             return res.status(404).json({ success: false, message: "User not found" });
+//         }
+
+//         const newOrder = new OrderModel({
+//             userId:id,
+//             customerName,
+//             customerAddress,
+//             pickupDate,
+//             deliveryDate,
+//             orderType,
+//             services,
+//             subTotal,
+//             taxAmount,
+//             discountAmount,
+//             totalAmount,
+//             paymentMethod,
+//             notes
+//         });
+
+//         await newOrder.save();
+
+//         user.totalOrdersCount += 1;
+//         await user.save();
+
+//         res.status(201).json({ success: true, message: "Order created", data: newOrder });
+
+//     } catch (error) {
+//         res.status(500).json({ success: false, message: "Server Error", error: error.message });
+//     }
+// };
+
+// GET all orders
+export const getAllOrders = async (req, res) => {
+    try {
+        // const orders = await OrderModel.find().populate('').sort({ createdAt: -1 });
+        const orders = await OrderModel.find();
+        if(!orders || orders.length===0){
+            res.status(400).json({success:false,message:"Order not exist."})
+        }
+        res.status(200).json({ success: true, data: orders });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
+// GET a specific order
+export const getSpecificOrder = async (req, res) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: "Invalid Order ID" });
+    }
+
+    try {
+        // const order = await OrderModel.findById(id).populate('userId');
+        const order = await OrderModel.findById(id);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+        res.status(200).json({ success: true, data: order });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
+// PUT - Update status of a specific order
+export const updateOrderStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: "Invalid Order ID" });
+    }
+
+    if (!validStatuses.includes(status)) {
+        return res.status(400).json({ success: false, message: "Invalid status value" });
+    }
+
+    try {
+        const updated = await OrderModel.findByIdAndUpdate(
+            id,
+            { status, updatedAt: Date.now() },
+            { new: true }
+        );
+        res.status(200).json({ success: true, message: "Order status updated", data: updated });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
+// PUT - Update an order
+export const updateOrder = async (req, res) => {
+    const { id } = req.params;
+    const updateFields = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: "Invalid Order ID" });
+    }
+
+    try {
+        const updatedOrder = await OrderModel.findByIdAndUpdate(
+            id,
+            { ...updateFields, updatedAt: Date.now() },
+            { new: true, runValidators: true }
+        );
+        if (!updatedOrder) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+        res.status(200).json({ success: true, message: "Order updated", data: updatedOrder });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
+// DELETE - Delete an order
+export const deleteOrder = async (req, res) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: "Invalid Order ID" });
+    }
+
+    try {
+        const deleted = await OrderModel.findByIdAndDelete(id);
+        if (!deleted) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+        res.status(200).json({ success: true, message: "Order deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
+// PUT - Update payment status
+export const updatePaymentStatus = async (req, res) => {
+    const { id } = req.params;
+    const { paymentStatus } = req.body;
+
+    const validPayments = ['Paid', 'Unpaid', 'Refunded'];
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: "Invalid Order ID" });
+    }
+
+    if (!validPayments.includes(paymentStatus)) {
+        return res.status(400).json({ success: false, message: "Invalid payment status" });
+    }
+
+    try {
+        const updated = await OrderModel.findByIdAndUpdate(
+            id,
+            { paymentStatus, updatedAt: Date.now() },
+            { new: true }
+        );
+        if (!updated) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+        res.status(200).json({ success: true, message: "Payment status updated", data: updated });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
 };

@@ -1,5 +1,4 @@
 import { UserModel } from "../models/User.js";
-import bcrypt from 'bcryptjs';
 
 // GET /api/user/profile
 export const getUserProfile = async (req, res) => {

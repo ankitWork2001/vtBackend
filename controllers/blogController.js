@@ -165,3 +165,57 @@ export const syncServiceCategoriesToBlogCategories = async () => {
     })
   );
 };
+
+// Get all unique blog categories
+export const getBlogCategories = async (req, res) => {
+  try {
+    const categories = await BlogCategoryModel.distinct("category");
+
+    if (!categories || categories.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Blog categories not found!",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Successfully found all blog categories.",
+      data: categories,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+// Create a new blog category
+export const createBlogCategory = async (req, res) => {
+  try {
+    const { category } = req.body;
+
+    if (!category) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a category name",
+      });
+    }
+
+    const newCategory = new BlogCategoryModel({
+      category,
+    });
+
+    const savedCategory = await newCategory.save();
+    res.status(201).json({
+      success: true,
+      message: "Category created successfully",
+      data: savedCategory,
+    });
+  } catch (err) {
+    console.error("Error creating category:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create category",
+      error: err.message,
+    });
+  }
+};

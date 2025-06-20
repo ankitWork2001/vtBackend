@@ -1,5 +1,4 @@
-
-import {UserModel} from "../models/User.js";
+import { UserModel } from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -13,12 +12,18 @@ export const signup = async (req, res) => {
     }
 
     if (password.length < 6) {
-      return res.json({ message: "Password length should be more than 6", success: false });
+      return res.json({
+        message: "Password length should be more than 6",
+        success: false,
+      });
     }
 
     const oldUser = await UserModel.findOne({ email });
     if (oldUser) {
-      return res.json({ message: "Email is already registered", success: false });
+      return res.json({
+        message: "Email is already registered",
+        success: false,
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -31,9 +36,17 @@ export const signup = async (req, res) => {
       password: hashedPassword,
     });
 
-    res.status(201).json({ message: "User registered successfully", success: true, newUser });
+    res
+      .status(201)
+      .json({
+        message: "User registered successfully",
+        success: true,
+        newUser,
+      });
   } catch (error) {
-    res.status(500).json({ message: error.message || "Signup failed", success: false });
+    res
+      .status(500)
+      .json({ message: error.message || "Signup failed", success: false });
   }
 };
 
@@ -43,16 +56,27 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.json({ message: "Email and password are required", success: false });
+      return res.json({
+        message: "Email and password are required",
+        success: false,
+      });
     }
 
-    if (!email.includes("@") || !email.includes(".") || email.startsWith("@") || email.endsWith("@")) {
+    if (
+      !email.includes("@") ||
+      !email.includes(".") ||
+      email.startsWith("@") ||
+      email.endsWith("@")
+    ) {
       return res.json({ message: "Invalid email format", success: false });
     }
 
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return res.json({ message: "No user found with this email", success: false });
+      return res.json({
+        message: "No user found with this email",
+        success: false,
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -62,7 +86,7 @@ export const login = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, email: user.email },
-      JWT_SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
@@ -79,7 +103,9 @@ export const login = async (req, res) => {
       user,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message || "Login failed", success: false });
+    res
+      .status(500)
+      .json({ message: error.message || "Login failed", success: false });
   }
 };
 
@@ -94,6 +120,8 @@ export const logout = (req, res) => {
 
     res.json({ message: "Logged out successfully", success: true });
   } catch (error) {
-    res.status(500).json({ message: error.message || "Logout failed", success: false });
+    res
+      .status(500)
+      .json({ message: error.message || "Logout failed", success: false });
   }
 };

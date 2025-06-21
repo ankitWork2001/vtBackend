@@ -1,3 +1,69 @@
-export const invoicesController = (req, res) => {
 
+import { InvoiceModel } from '../models/Invoice.js';
+
+// GET /api/invoices/:invoiceId - fetch specific invoice
+export const getInvoiceById = async (req, res) => {
+  try {
+    const invoice = await InvoiceModel.findById(req.params.invoiceId);
+    if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+    res.json(invoice);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err });
+  }
+};
+
+// POST /api/invoices - create new invoice
+export const createInvoice = async (req, res) => {
+  try {
+    const newInvoice = new InvoiceModel(req.body);
+    const savedInvoice = await newInvoice.save();
+    res.status(201).json(savedInvoice);
+  } catch (err) {
+    res.status(400).json({ message: 'Invalid invoice data', error: err });
+  }
+};
+
+// PUT /api/invoices/:invoiceId - update an invoice
+export const updateInvoice = async (req, res) => {
+  try {
+    const updated = await InvoiceModel.findByIdAndUpdate(
+      req.params.invoiceId,
+      req.body,
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ message: 'Invoice not found' });
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ message: 'Update failed', error: err });
+  }
+};
+
+// POST /api/invoices/:invoiceId/send - simulate sending invoice
+export const sendInvoice = async (req, res) => {
+  try {
+    const invoice = await InvoiceModel.findById(req.params.invoiceId);
+    if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+
+    invoice.sentToCustomer = true;
+    invoice.sentDate = new Date();
+    await invoice.save();
+
+    res.json({ message: 'Invoice sent successfully', invoice });
+  } catch (err) {
+    res.status(500).json({ message: 'Sending failed', error: err });
+  }
+};
+
+// GET /api/invoices/:invoiceId/download - simulate download
+export const downloadInvoice = async (req, res) => {
+  try {
+    const invoice = await InvoiceModel.findById(req.params.invoiceId);
+    if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+
+    // For simplicity, just send JSON. In real app, you'd generate and send PDF.
+    res.setHeader('Content-Disposition', 'attachment; filename=invoice.json');
+    res.json(invoice);
+  } catch (err) {
+    res.status(500).json({ message: 'Download failed', error: err });
+  }
 };

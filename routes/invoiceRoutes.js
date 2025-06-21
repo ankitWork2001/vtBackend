@@ -31,4 +31,8 @@ router.post('/invoices/:invoiceId/send', sendInvoice);
 // GET /api/invoices/:invoiceId/download
 router.get('/invoices/:invoiceId/download', downloadInvoice);
 
+
+// router.get('/invoice');
+
+
 export { router as invoicesRouter };

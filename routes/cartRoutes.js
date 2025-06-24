@@ -1,7 +1,8 @@
 import express from 'express';
 const router = express.Router();
 import * as cartController from "../controllers/cartController.js";
-import {verifyToken} from '../middleware/verifyToken.js';
+// import {verifyToken} from '../middleware/verifyToken.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 
 router.post('/cart', verifyToken,  cartController.addToCart);                       // Add item

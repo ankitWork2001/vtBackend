@@ -1,5 +1,8 @@
 import express from 'express';
 const router = express.Router();
+import * as orderController from '../controllers/orderController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
+
 
 // router.post('/createorder/:id', orderController.createOrder);
 router.get('/allorder', orderController.getAllOrders);

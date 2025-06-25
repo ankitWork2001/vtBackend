@@ -35,7 +35,7 @@ export const getNotificationSettings = async (req, res) => {
 export const updateNotificationSettings = async (req, res) => {
 
   try {
-    const { userId } = req.body;
+    const userId = req.user.id;
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });

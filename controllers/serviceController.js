@@ -17,8 +17,8 @@ export const getAllServices = async (req, res) => {
 
 export const getUserServices = async (req, res) => {
   try {
-    const userId = req.user?._id;
-
+    const userId = req.user?req.user.id:null;
+    console.log(userId)
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized: User not logged in' });
     }
@@ -30,7 +30,6 @@ export const getUserServices = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-import { ServiceModel } from '../models/serviceSchema.js';
 
 // Create a new service
 export const createService = async (req, res) => {

@@ -5,7 +5,7 @@ export const addTestimonial = async (req, res) => {
     const { userName, comment, rating } = req.body;
 
     const userId = req.user ? req.user.id : null;
-
+    console.log(userId)
     if (!userName || !comment || !rating) {
         return res.status(400).json({ message: "All fields are required" });
     }

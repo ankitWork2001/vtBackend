@@ -5,7 +5,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 import connectDB from './config/db.js';
 
-connectDB();
 
 import { authRouter } from "./routes/authRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
@@ -25,7 +24,6 @@ import { invoicesRouter } from "./routes/invoiceRoutes.js"
 import { todoRouter } from "./routes/todoRoutes.js";
 import { planpricingRouter } from "./routes/pricingPlanRoutes.js";
 
-connectDB();
  
 app.use(express.json());
 

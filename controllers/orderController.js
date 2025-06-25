@@ -1,36 +1,37 @@
-import {OrderModel} from '../models/Order.js';
+import { OrderModel } from '../models/Order.js';
 import mongoose from 'mongoose';
 
-
 export const confirmOrder = async (req, res) => {
-      const { userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
-
     
-    if (!userId || !serviceId || !deliveryAddress || !deliveryDate || !totalBill || !pickupDate) {
+    const {orderId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
+    const userId = req.user.id;
+    console.log(userId)
+
+     if (!userId || !serviceId || !deliveryAddress || !deliveryDate || !totalBill || !pickupDate) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
 
     try {
-        const newOrder = new OrderModel({ userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
+        const newOrder = new OrderModel({orderId, userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-
-}
+};
 
 
 // to get all orders of a user
 export const toGetOrders = async (req, res) => {
-    try{
+    try {
+        const userId = req.user.id;
         const orders = await OrderModel.find({ userId });
         res.json(orders);
 
-    }catch(err){
+    } catch (err) {
         res.json({
-            status:500,
-            message:err.message
+            status: 500,
+            message: err.message
         })
     }
 }
@@ -38,7 +39,7 @@ export const toGetOrders = async (req, res) => {
 
 //to get a order by its id
 export const orderById = async (req, res) => {
-     const { id } = req.params;
+    const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ error: 'Invalid order ID.' });
@@ -56,7 +57,7 @@ export const orderById = async (req, res) => {
 
 //to get a cancelled order by its id
 export const orderCancelled = async (req, res) => {
-     const { id } = req.params;
+    const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ error: 'Invalid order ID.' });
@@ -154,8 +155,8 @@ export const getAllOrders = async (req, res) => {
     try {
         // const orders = await OrderModel.find().populate('').sort({ createdAt: -1 });
         const orders = await OrderModel.find();
-        if(!orders || orders.length===0){
-            res.status(400).json({success:false,message:"Order not exist."})
+        if (!orders || orders.length === 0) {
+            res.status(400).json({ success: false, message: "Order not exist." })
         }
         res.status(200).json({ success: true, data: orders });
     } catch (error) {
@@ -188,7 +189,7 @@ export const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ success: false, message: "Invalid Order ID" });
     }

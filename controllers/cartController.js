@@ -54,7 +54,8 @@ export const getCart = async (req, res) => {
 // Update quantity or product
 export const updateCartItem = async (req, res) => {
   try {
-    const { userId, serviceId, quantity } = req.body;
+    const userId = req.user.id;
+    const {serviceId, quantity } = req.body;
 
     const item = await AddtoCartmodel.findOne({ userId, serviceId });
 

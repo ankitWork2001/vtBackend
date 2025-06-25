@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const orderSchema = new mongoose.Schema({
     orderId: { type: String, unique: true, required: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    customerName: { type: String, required: true },
+    customerName: { type: String, required: false },
     customerAddress: { type: String },
     orderDate: { type: Date, default: Date.now },
     pickupDate: { type: Date },
@@ -14,7 +14,7 @@ const orderSchema = new mongoose.Schema({
             'Wash & Fold', 'Dry Cleaning', 'Stain Removal', 'Steam Press',
             'Wash & Iron', 'Ironing Only', 'Shoe Cleaning', 'Curtain & Bedding Cleaning'
         ],
-        required: true
+        required: false
     },
     status: {
         type: String,
@@ -31,10 +31,10 @@ const orderSchema = new mongoose.Schema({
             totalItemPrice: { type: Number, required: true }
         }
     ],
-    subTotal: { type: Number, required: true },
+    subTotal: { type: Number, required: false },
     taxAmount: { type: Number, default: 0 },
     discountAmount: { type: Number, default: 0 },
-    totalAmount: { type: Number, required: true },
+    totalAmount: { type: Number, required: false },
     paymentStatus: { type: String, enum: ['Paid', 'Unpaid', 'Refunded'], default: 'Unpaid' },
     paymentMethod: { type: String },
     notes: { type: String },

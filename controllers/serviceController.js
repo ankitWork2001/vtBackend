@@ -30,7 +30,6 @@ export const getUserServices = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-import { ServiceModel } from '../models/serviceSchema.js';
 
 // Create a new service
 export const createService = async (req, res) => {

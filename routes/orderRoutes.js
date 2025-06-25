@@ -1,7 +1,9 @@
 import express from 'express';
 const router = express.Router();
+import * as orderController from '../controllers/orderController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
-// router.post('/createorder/:id', orderController.createOrder);
+//Admin
 router.get('/allorder', orderController.getAllOrders);
 router.get('/specificorder/:id', orderController.getSpecificOrder);
 router.put('/getspecific/:id/status', orderController.updateOrderStatus);
@@ -9,16 +11,6 @@ router.put('/getspecific/:id', orderController.updateOrder);
 router.delete('/getspecific/:id', orderController.deleteOrder);
 router.put('/getspecific/:id/payment', orderController.updatePaymentStatus);
 
-import {
-  confirmOrder,
-  toGetOrders,
-  orderById,
-  orderCancelled,
-  orderDelivered
-} from '../controllers/orderController.js';
-
-
-//need to write middlewares
 router.post('/confirm',verifyToken, confirmOrder); 
 router.get('/', verifyToken, toGetOrders);
 router.get('/:id', verifyToken, orderById);

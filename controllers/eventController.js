@@ -1,4 +1,4 @@
-import { EventModel } from '../models/eventSchema.js';
+import { EventModel } from '../models/Events.js';
 
 // GET /api/events - Get all events
 export const getAllEvents = async (req, res) => {

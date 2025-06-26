@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 export const confirmOrder = async (req, res) => {
     
-    const {orderId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
+    const {serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
     const userId = req.user.id;
     console.log(userId)
 
@@ -12,7 +12,7 @@ export const confirmOrder = async (req, res) => {
     }
 
     try {
-        const newOrder = new OrderModel({orderId, userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
+        const newOrder = new OrderModel({userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
     } catch (err) {
@@ -57,7 +57,7 @@ export const orderById = async (req, res) => {
 
 //to get a cancelled order by its id
 export const orderCancelled = async (req, res) => {
-    const { id } = req.params;
+    const {id} = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ error: 'Invalid order ID.' });

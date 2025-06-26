@@ -7,10 +7,10 @@ import { verifyToken } from '../middleware/authMiddleware.js';
 // router.get('/dashboard',verifyToken, dashboardController.getDashboardData);
 
 // 1. Get Dashboard Summary
-router.get('/dashboard/summary',verifyToken, dashboardController.getDashboardSummary);
+router.get('/summary',verifyToken, dashboardController.getDashboardSummary);
 
 // 2. Get Sales Details
-router.get('/dashboard/sales', verifyToken, dashboardController.getSalesDetails);
+router.get('/sales', verifyToken, dashboardController.getSalesDetails);
 
 // 3. Get All Orders
 router.get('/orders', verifyToken, dashboardController.getOrders);

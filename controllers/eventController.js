@@ -15,6 +15,7 @@ export const getAllEvents = async (req, res) => {
 export const getEventById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("Fetching event with ID:", id);
     const event = await EventModel.findById(id).populate('participants').populate('createdBy');
 
     if (!event) {

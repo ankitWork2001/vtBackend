@@ -7,9 +7,9 @@ dotenv.config()
 //Signup
 export const signup = async (req, res) => {
   try {
-    const { firstName, lastName,username, email, phone, password } = req.body;
+    const { firstName, lastName,username, role, email, phone, password } = req.body;
 
-    if (!firstName || !lastName || !username || !email || !phone || !password) {
+    if (!firstName || !lastName || !username || !role || !email || !phone || !password) {
       return res.json({ message: "All fields are required", success: false });
     }
 
@@ -28,6 +28,7 @@ export const signup = async (req, res) => {
       firstName,
       lastName,
       username,
+      role,
       email,
       phone,
       password: hashedPassword,
@@ -63,7 +64,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );

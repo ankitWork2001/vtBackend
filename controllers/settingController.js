@@ -32,6 +32,7 @@ export const updateGeneralSettings = async (req, res) => {
 export const createGeneralSettings = async (req, res) => {
     try {
         const { logoUrl } = req.body;
+        
 
         if (!logoUrl) {
             return res.status(400).json({ success: false, message: "Logo URL is required" });

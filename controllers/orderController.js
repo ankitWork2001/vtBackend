@@ -1,36 +1,38 @@
-import {OrderModel} from '../models/Order.js';
+import { OrderModel } from '../models/Order.js';
 import mongoose from 'mongoose';
+import { UserModel } from '../models/User.js'
+import { PickupModel } from '../models/PickupInfo.js';
+// export const confirmOrder = async (req, res) => {
 
+//     const {serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
+//     const userId = req.user.id;
+//     console.log(userId)
 
-export const confirmOrder = async (req, res) => {
-      const { userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
+//      if (!userId || !serviceId || !deliveryAddress || !deliveryDate || !totalBill || !pickupDate) {
+//         return res.status(400).json({ error: 'All fields are required.' });
+//     }
 
-    
-    if (!userId || !serviceId || !deliveryAddress || !deliveryDate || !totalBill || !pickupDate) {
-        return res.status(400).json({ error: 'All fields are required.' });
-    }
-
-    try {
-        const newOrder = new OrderModel({ userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
-        const savedOrder = await newOrder.save();
-        res.status(201).json(savedOrder);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-
-}
+//     try {
+//         const newOrder = new OrderModel({userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
+//         const savedOrder = await newOrder.save();
+//         res.status(201).json(savedOrder);
+//     } catch (err) {
+//         res.status(500).json({ error: err.message });
+//     }
+// };
 
 
 // to get all orders of a user
 export const toGetOrders = async (req, res) => {
-    try{
+    try {
+        const userId = req.user.id;
         const orders = await OrderModel.find({ userId });
         res.json(orders);
 
-    }catch(err){
+    } catch (err) {
         res.json({
-            status:500,
-            message:err.message
+            status: 500,
+            message: err.message
         })
     }
 }
@@ -38,7 +40,7 @@ export const toGetOrders = async (req, res) => {
 
 //to get a order by its id
 export const orderById = async (req, res) => {
-     const { id } = req.params;
+    const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ error: 'Invalid order ID.' });
@@ -56,7 +58,7 @@ export const orderById = async (req, res) => {
 
 //to get a cancelled order by its id
 export const orderCancelled = async (req, res) => {
-     const { id } = req.params;
+    const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ error: 'Invalid order ID.' });
@@ -88,74 +90,100 @@ export const orderDelivered = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 }
+const generate14DigitID = () => {
+    let id = '';
+    for (let i = 0; i < 14; i++) {
+        const digit = Math.floor(Math.random() * 10);
+        id += (i === 0 && digit === 0) ? Math.floor(Math.random() * 9 + 1) : digit;
+    }
+    return id;
+};
 
-// export const createOrder = async (req, res) => {
-//     try {
-//         const {id} = req.params;
-//         const {
+export const createOrder = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const orderId = generate14DigitID();
 
-//             customerName,
-//             customerAddress,
-//             pickupDate,
-//             deliveryDate,
-//             orderType,
-//             services,
-//             subTotal,
-//             taxAmount = 0,
-//             discountAmount = 0,
-//             totalAmount,
-//             paymentMethod,
-//             notes
-//         } = req.body;
+        // Validate userId format
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: "Invalid user ID" });
+        }
 
-//         if (!customerName || !orderType || !services || !subTotal || !totalAmount) {
-//             return res.status(400).json({ success: false, message: "Missing required fields" });
-//         }
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
 
-//         if (!mongoose.Types.ObjectId.isValid(id)) {
-//             return res.status(400).json({ success: false, message: "Invalid userId" });
-//         }
+        // Get pickup date
+        const pickupRecord = await PickupModel.findOne({ userId: new mongoose.Types.ObjectId(userId) } ).sort({ createdAt: -1 });
+        
+        if (!pickupRecord || !pickupRecord.pickupDate) {
+            return res.status(400).json({ success: false, message: "Pickup date not found", pickupRecord });
+        }
+        const pickupDate = pickupRecord.pickupDate;
 
-//         const user = await UserModel.findById(id);
-//         if (!user) {
-//             return res.status(404).json({ success: false, message: "User not found" });
-//         }
+        // Calculate delivery date as 7 days from now
+        const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-//         const newOrder = new OrderModel({
-//             userId:id,
-//             customerName,
-//             customerAddress,
-//             pickupDate,
-//             deliveryDate,
-//             orderType,
-//             services,
-//             subTotal,
-//             taxAmount,
-//             discountAmount,
-//             totalAmount,
-//             paymentMethod,
-//             notes
-//         });
+        const {
 
-//         await newOrder.save();
+            orderType,
+            services,
+            subTotal,
+            discountAmount = 0,
+            totalAmount,
+            paymentMethod
+        } = req.body;
 
-//         user.totalOrdersCount += 1;
-//         await user.save();
+        if (!orderType || !services || !Array.isArray(services) || services.length === 0 || !subTotal || !totalAmount) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing or invalid required fields"
+            });
+        }
 
-//         res.status(201).json({ success: true, message: "Order created", data: newOrder });
+        const newOrder = new OrderModel({
+            orderId,
+            userId,
+            pickupDate,
+            deliveryDate,
+            orderType,
+            services,
+            subTotal,
+            discountAmount,
+            totalAmount,
+            paymentMethod
+        });
 
-//     } catch (error) {
-//         res.status(500).json({ success: false, message: "Server Error", error: error.message });
-//     }
-// };
+        await newOrder.save();
+
+        user.totalOrdersCount = (user.totalOrdersCount || 0) + 1;
+        await user.save();
+
+        return res.status(201).json({
+            success: true,
+            message: "Order created successfully",
+            data: newOrder
+        });
+
+    } catch (error) {
+        console.error("Order creation failed:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+            error: error.message
+        });
+    }
+};
+
 
 // GET all orders
 export const getAllOrders = async (req, res) => {
     try {
         // const orders = await OrderModel.find().populate('').sort({ createdAt: -1 });
         const orders = await OrderModel.find();
-        if(!orders || orders.length===0){
-            res.status(400).json({success:false,message:"Order not exist."})
+        if (!orders || orders.length === 0) {
+            res.status(400).json({ success: false, message: "Order not exist." })
         }
         res.status(200).json({ success: true, data: orders });
     } catch (error) {
@@ -188,7 +216,7 @@ export const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ success: false, message: "Invalid Order ID" });
     }

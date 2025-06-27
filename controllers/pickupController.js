@@ -3,6 +3,7 @@ import { PickupModel } from "../models/PickupInfo.js";
 
 export const createPickupInfo = async (req, res) => {
   try {
+    const userId = req.user.id
     const { fullName, addressTitle, address, landmark, pickupDate, pickupTimeSlot } = req.body;
 
     if (!fullName || !addressTitle || !address || !pickupDate || !pickupTimeSlot) {
@@ -10,7 +11,7 @@ export const createPickupInfo = async (req, res) => {
     }
 
     const newPickup = new PickupModel({
-      userId: req.user._id, 
+      userId, 
       fullName,
       addressTitle,
       address,
@@ -27,3 +28,14 @@ export const createPickupInfo = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+// recently not in use
+// export const savedPickupInfos=async(req,res)=>{
+//   try{
+//     const response = await PickupModel.find();
+//     if(!response) return console.log("res not found");
+//     return res.status(200).json({success:true,data:response});
+//   }catch(er){
+//     console.log(er)
+//   }
+// }

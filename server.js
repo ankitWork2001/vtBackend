@@ -23,6 +23,8 @@ import { settingRouter } from "./routes/settingRoutes.js";
 import { invoicesRouter } from "./routes/invoiceRoutes.js"
 import { todoRouter } from "./routes/todoRoutes.js";
 import { planpricingRouter } from "./routes/pricingPlanRoutes.js";
+// import walletRouter from './routes/walletRoutes.js';
+import { walletRouter } from './routes/walletRoute.js';
 
  
 app.use(express.json());
@@ -57,6 +59,7 @@ app.use('/api/settings', settingRouter);
 app.use('/api/invoices', invoicesRouter);
 app.use('/api/todo', todoRouter);
 app.use('/api/planpricing', planpricingRouter);
+app.use('/api/wallet', walletRouter);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the API');

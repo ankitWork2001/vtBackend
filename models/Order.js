@@ -20,7 +20,7 @@ const orderSchema = new mongoose.Schema({
         default: 'Pending Pickup'
     },
     services: [
-        {
+{
             serviceId: { type: mongoose.Schema.Types.ObjectId, ref: 'Service' },
             serviceName: { type: String, required: true },
             quantity: { type: Number, required: true },
@@ -41,3 +41,4 @@ const orderSchema = new mongoose.Schema({
 });
 
 export const OrderModel = mongoose.model("Order", orderSchema);
+        

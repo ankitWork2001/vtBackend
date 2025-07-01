@@ -5,8 +5,8 @@ import {AddtoCartmodel} from "../models/AddToCart.js"
 export const addToCart = async (req, res) => {
 
   try {
-
-    const { userId, serviceId, quantity, price } = req.body;
+    const userId = req.user.id;
+    const {serviceId, quantity, price } = req.body;
 
     if (!userId || !serviceId || !price) {
       return res.status(400).json({ message: "Missing required fields" });

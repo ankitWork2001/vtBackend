@@ -17,6 +17,7 @@ router.put('/getspecific/:id/payment',verifyToken,authorizeRoles('admin'), order
 router.post('/createorder', verifyToken, orderController.createOrder);
 // router.post('/confirm',verifyToken, orderController.confirmOrder); 
 router.get('/', verifyToken, orderController.toGetOrders);
+router.get('/paymentInitiate', verifyToken, orderController.paymentInitiate);
 router.get('/:id', verifyToken, orderController.orderById); 
 router.get('/:id/cancelled',verifyToken,  orderController.orderCancelled);
 router.get('/:id/delivered', verifyToken, orderController.orderDelivered);

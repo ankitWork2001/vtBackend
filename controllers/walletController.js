@@ -2,8 +2,8 @@ import {Wallet} from '../models/Wallet.js';
 
 export const createUserWallet = async (req, res) => {
   try {
-    const { userId } = req.body;
-
+    const userId = req.user.id;
+console.log(userId)
     const existing = await Wallet.findOne({ ownerType: 'User', ownerId: userId });
     if (existing) return res.status(400).json({ message: 'Wallet already exists' });
 
@@ -41,6 +41,7 @@ export const getWallet = async (req, res) => {
 
 export const createAdminWallet = async (req, res) => {
   try {
+    const ownerId = req.user.id;
     let wallet = await Wallet.findOne({ ownerType: 'Admin' });
 
     if (wallet) {
@@ -49,6 +50,7 @@ export const createAdminWallet = async (req, res) => {
 
     wallet = new Wallet({
       ownerType: 'Admin',
+      ownerId,
       balance: 0,
     });
 

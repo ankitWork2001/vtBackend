@@ -102,68 +102,8 @@ const generate14DigitID = () => {
     return id;
 };
 
-
-export const paymentInitiate = async (req, res) => {
-    try {
-        const id = req.user.id;
-
-        // Fetch cart items
-        const cartItems = await AddtoCartmodel.find({ userId: id });
-        if (cartItems.length === 0) {
-            return res.status(404).json({ success: false, message: "Cart is empty" });
-        }
-
-        // Calculate total bill
-        const totalAmount = cartItems.reduce((sum, item) => {
-            return sum + (item.price * (item.quantity || 1));
-        }, 0);
-
-        // Get wallet
-        const wallet = await Wallet.findOne({ ownerId: id });
-        if (!wallet) {
-            return res.status(404).json({ success: false, message: "Wallet not found" });
-        }
-
-        if (wallet.balance < totalAmount) {
-            return res.status(400).json({
-                success: false,
-                message: "Insufficient wallet balance",
-                walletBalance: wallet.balance,
-                totalAmount
-            });
-        }
-
-        // Find latest unpaid order
-        const order = await OrderModel.findOne({ userId: id, paymentStatus: "Unpaid" }).sort({ createdAt: -1 });
-        if (!order) {
-            return res.status(404).json({ success: false, message: "No unpaid order found" });
-        }
-
-        // Deduct balance & update payment status
-        wallet.balance -= totalAmount;
-        order.paymentStatus = "Paid";
-
-        await wallet.save();
-        await order.save();
-
-        return res.status(200).json({
-            success: true,
-            message: "Payment successful, wallet updated",
-            updatedBalance: wallet.balance,
-            deductedAmount: totalAmount
-        });
-
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Server Error" });
-    }
-};
-
-
-
 export const createOrder = async (req, res) => {
     try {
-
         const userId = req.user.id;
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -175,8 +115,7 @@ export const createOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        const lastOrder = await OrderModel.findOne({ userId }).sort({ createdAt: -1 });
-
+        // Fetch cart
         const cartItems = await AddtoCartmodel.find({ userId });
         if (cartItems.length === 0) {
             return res.status(404).json({ success: false, message: "Cart is empty" });
@@ -186,38 +125,45 @@ export const createOrder = async (req, res) => {
             return sum + (item.price * (item.quantity || 1));
         }, 0);
 
+        // Get wallet
+        const wallet = await Wallet.findOne({ ownerId: userId });
+        if (!wallet) {
+            return res.status(404).json({ success: false, message: "Wallet not found" });
+        }
+
+        if (wallet.balance < subTotal) {
+            return res.status(400).json({
+                success: false,
+                message: "Insufficient wallet balance",
+                walletBalance: wallet.balance,
+                totalAmount: subTotal
+            });
+        }
+
+        // Deduct balance
+        wallet.balance -= subTotal;
+        await wallet.save();
+
+        // Pickup details
         const pickupRecord = await PickupModel.findOne({ userId }).sort({ createdAt: -1 });
         if (!pickupRecord || !pickupRecord.pickupDate) {
             return res.status(400).json({ success: false, message: "Pickup date not found", pickupRecord });
         }
-
         const pickupDate = pickupRecord.pickupDate;
         const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // +7 days
 
+        // Build services array
+        const services = cartItems.map(item => ({
+            serviceId: item.serviceId,
+            serviceName: item.serviceName || "Service", // You can improve this if you store name in cart
+            quantity: item.quantity,
+            unit: item.unit || "item",
+            unitPrice: item.price,
+            totalItemPrice: item.price * item.quantity
+        }));
 
-
-        if (!lastOrder || lastOrder.paymentStatus !== 'Paid') {
-            return res.status(400).json({ success: false, message: "Payment not done or no previous order found." });
-        }
-        let discountAmount = 0.05;
-        const totalAmount = subTotal * discountAmount;
-
-        const {
-            orderType,
-            services,
-            paymentMethod
-        } = req.body;
-
-        if (
-            !orderType ||
-            !services || !Array.isArray(services) || services.length === 0 ||
-            subTotal === undefined || totalAmount === undefined
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Missing or invalid required fields"
-            });
-        }
+        const discountAmount = subTotal * 0.05; // Assuming 5% discount
+        const totalAmount = subTotal - discountAmount;
 
         const orderId = generate14DigitID();
 
@@ -226,12 +172,13 @@ export const createOrder = async (req, res) => {
             userId,
             pickupDate,
             deliveryDate,
-            orderType,
+            orderType: req.body.orderType || "Wash & Fold", // Default or provided
             services,
             subTotal,
             discountAmount,
             totalAmount,
-            paymentMethod
+            paymentStatus: "Paid",
+            paymentMethod: "Wallet"
         });
 
         await newOrder.save();
@@ -239,9 +186,14 @@ export const createOrder = async (req, res) => {
         user.totalOrdersCount = (user.totalOrdersCount || 0) + 1;
         await user.save();
 
+        // Clear cart
+        await AddtoCartmodel.deleteMany({ userId });
+
         return res.status(201).json({
             success: true,
-            message: "Order created successfully",
+            message: "Order created successfully and payment deducted",
+            orderId: newOrder._id,
+            updatedWalletBalance: wallet.balance,
             data: newOrder
         });
 
@@ -254,6 +206,159 @@ export const createOrder = async (req, res) => {
         });
     }
 };
+
+
+// export const paymentInitiate = async (req, res) => {
+//     try {
+//         const id = req.user.id;
+
+//         // Fetch cart items
+//         const cartItems = await AddtoCartmodel.find({ userId: id });
+//         if (cartItems.length === 0) {
+//             return res.status(404).json({ success: false, message: "Cart is empty" });
+//         }
+
+//         // Calculate total bill
+//         const totalAmount = cartItems.reduce((sum, item) => {
+//             return sum + (item.price * (item.quantity || 1));
+//         }, 0);
+
+//         // Get wallet
+//         const wallet = await Wallet.findOne({ ownerId: id });
+//         if (!wallet) {
+//             return res.status(404).json({ success: false, message: "Wallet not found" });
+//         }
+
+//         if (wallet.balance < totalAmount) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Insufficient wallet balance",
+//                 walletBalance: wallet.balance,
+//                 totalAmount
+//             });
+//         }
+
+//         // Find latest unpaid order
+//         const order = await OrderModel.findOne({ userId: id, paymentStatus: "Unpaid" }).sort({ createdAt: -1 });
+//         if (!order) {
+//             return res.status(404).json({ success: false, message: "No unpaid order found" });
+//         }
+
+//         // Deduct balance & update payment status
+//         wallet.balance -= totalAmount;
+//         order.paymentStatus = "Paid";
+
+//         await wallet.save();
+//         await order.save();
+
+//         return res.status(200).json({
+//             success: true,
+//             message: "Payment successful, wallet updated",
+//             updatedBalance: wallet.balance,
+//             deductedAmount: totalAmount
+//         });
+
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ success: false, message: "Server Error" });
+//     }
+// };
+
+
+
+// export const createOrder = async (req, res) => {
+//     try {
+
+//         const userId = req.user.id;
+
+//         if (!mongoose.Types.ObjectId.isValid(userId)) {
+//             return res.status(400).json({ success: false, message: "Invalid user ID" });
+//         }
+
+//         const user = await UserModel.findById(userId);
+//         if (!user) {
+//             return res.status(404).json({ success: false, message: "User not found" });
+//         }
+
+//         const lastOrder = await OrderModel.findOne({ userId }).sort({ createdAt: -1 });
+
+//         const cartItems = await AddtoCartmodel.find({ userId });
+//         if (cartItems.length === 0) {
+//             return res.status(404).json({ success: false, message: "Cart is empty" });
+//         }
+
+//         const subTotal = cartItems.reduce((sum, item) => {
+//             return sum + (item.price * (item.quantity || 1));
+//         }, 0);
+
+//         const pickupRecord = await PickupModel.findOne({ userId }).sort({ createdAt: -1 });
+//         if (!pickupRecord || !pickupRecord.pickupDate) {
+//             return res.status(400).json({ success: false, message: "Pickup date not found", pickupRecord });
+//         }
+
+//         const pickupDate = pickupRecord.pickupDate;
+//         const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // +7 days
+
+
+
+//         if (!lastOrder || lastOrder.paymentStatus !== 'Paid') {
+//             return res.status(400).json({ success: false, message: "Payment not done or no previous order found." });
+//         }
+//         let discountAmount = 0.05;
+//         const totalAmount = subTotal * discountAmount;
+
+//         const {
+//             orderType,
+//             services,
+//             paymentMethod
+//         } = req.body;
+
+//         if (
+//             !orderType ||
+//             !services || !Array.isArray(services) || services.length === 0 ||
+//             subTotal === undefined || totalAmount === undefined
+//         ) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Missing or invalid required fields"
+//             });
+//         }
+
+//         const orderId = generate14DigitID();
+
+//         const newOrder = new OrderModel({
+//             orderId,
+//             userId,
+//             pickupDate,
+//             deliveryDate,
+//             orderType,
+//             services,
+//             subTotal,
+//             discountAmount,
+//             totalAmount,
+//             paymentMethod
+//         });
+
+//         await newOrder.save();
+
+//         user.totalOrdersCount = (user.totalOrdersCount || 0) + 1;
+//         await user.save();
+
+//         return res.status(201).json({
+//             success: true,
+//             message: "Order created successfully",
+//             data: newOrder
+//         });
+
+//     } catch (error) {
+//         console.error("Order creation failed:", error);
+//         return res.status(500).json({
+//             success: false,
+//             message: "Server Error",
+//             error: error.message
+//         });
+//     }
+// };
 
 
 
@@ -300,6 +405,8 @@ export const updateOrderStatus = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ success: false, message: "Invalid Order ID" });
     }
+
+    const validStatuses = OrderModel.schema.path('status').enumValues;
 
     if (!validStatuses.includes(status)) {
         return res.status(400).json({ success: false, message: "Invalid status value" });

@@ -4,6 +4,7 @@ import { UserModel } from '../models/User.js'
 import { PickupModel } from '../models/PickupInfo.js';
 import { Wallet } from '../models/Wallet.js';
 import { AddtoCartmodel } from '../models/AddToCart.js';
+import { Transaction } from '../models/Transaction.js';
 // export const confirmOrder = async (req, res) => {
 
 //     const {serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
@@ -115,17 +116,13 @@ export const createOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        // Fetch cart
         const cartItems = await AddtoCartmodel.find({ userId });
         if (cartItems.length === 0) {
             return res.status(404).json({ success: false, message: "Cart is empty" });
         }
 
-        const subTotal = cartItems.reduce((sum, item) => {
-            return sum + (item.price * (item.quantity || 1));
-        }, 0);
+        const subTotal = cartItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
 
-        // Get wallet
         const wallet = await Wallet.findOne({ ownerId: userId });
         if (!wallet) {
             return res.status(404).json({ success: false, message: "Wallet not found" });
@@ -140,39 +137,77 @@ export const createOrder = async (req, res) => {
             });
         }
 
-        // Deduct balance
+        // Deduct user balance
         wallet.balance -= subTotal;
         await wallet.save();
 
-        // Pickup details
+        // Find admin wallet
+        const adminWallet = await Wallet.findOne({ ownerType: 'Admin' });
+        if (!adminWallet) {
+            return res.status(404).json({ success: false, message: "Admin wallet not found" });
+        }
+
+        // Credit admin wallet
+        adminWallet.balance += subTotal;
+        await adminWallet.save();
+
+        // Create transactions
+        await Transaction.create({
+            walletId: wallet._id,
+            amount: subTotal,
+            type: 'debit',
+            description: `Order payment (Order ID: will generate below)`,
+            paymentMode: 'manual',
+        });
+
+        await Transaction.create({
+            walletId: adminWallet._id,
+            amount: subTotal,
+            type: 'credit',
+            description: `Order received from user ${userId}`,
+            paymentMode: 'manual',
+        });
+
+        // Pickup info
         const pickupRecord = await PickupModel.findOne({ userId }).sort({ createdAt: -1 });
         if (!pickupRecord || !pickupRecord.pickupDate) {
-            return res.status(400).json({ success: false, message: "Pickup date not found", pickupRecord });
+            return res.status(400).json({ success: false, message: "Pickup date not found" });
         }
-        const pickupDate = pickupRecord.pickupDate;
-        const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // +7 days
 
-        // Build services array
+        const pickupDate = pickupRecord.pickupDate;
+        const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
         const services = cartItems.map(item => ({
             serviceId: item.serviceId,
-            serviceName: item.serviceName || "Service", // You can improve this if you store name in cart
+            serviceName: item.serviceName || "Service",
             quantity: item.quantity,
             unit: item.unit || "item",
             unitPrice: item.price,
             totalItemPrice: item.price * item.quantity
         }));
 
-        const discountAmount = subTotal * 0.05; // Assuming 5% discount
+        const discountAmount = subTotal * 0.05;
         const totalAmount = subTotal - discountAmount;
 
         const orderId = generate14DigitID();
+
+        // Update transaction descriptions with orderId
+        await Transaction.updateMany(
+            { walletId: wallet._id, description: /Order payment/ },
+            { description: `Order payment (Order ID: ${orderId})` }
+        );
+
+        await Transaction.updateMany(
+            { walletId: adminWallet._id, description: /Order received/ },
+            { description: `Order received from user ${userId} (Order ID: ${orderId})` }
+        );
 
         const newOrder = new OrderModel({
             orderId,
             userId,
             pickupDate,
             deliveryDate,
-            orderType: req.body.orderType || "Wash & Fold", // Default or provided
+            orderType: req.body.orderType || "Wash & Fold",
             services,
             subTotal,
             discountAmount,
@@ -186,12 +221,11 @@ export const createOrder = async (req, res) => {
         user.totalOrdersCount = (user.totalOrdersCount || 0) + 1;
         await user.save();
 
-        // Clear cart
         await AddtoCartmodel.deleteMany({ userId });
 
         return res.status(201).json({
             success: true,
-            message: "Order created successfully and payment deducted",
+            message: "Order created successfully, payment deducted, and admin wallet credited",
             orderId: newOrder._id,
             updatedWalletBalance: wallet.balance,
             data: newOrder
@@ -206,6 +240,112 @@ export const createOrder = async (req, res) => {
         });
     }
 };
+
+
+// export const createOrder = async (req, res) => {
+//     try {
+//         const userId = req.user.id;
+
+//         if (!mongoose.Types.ObjectId.isValid(userId)) {
+//             return res.status(400).json({ success: false, message: "Invalid user ID" });
+//         }
+
+//         const user = await UserModel.findById(userId);
+//         if (!user) {
+//             return res.status(404).json({ success: false, message: "User not found" });
+//         }
+
+//         // Fetch cart
+//         const cartItems = await AddtoCartmodel.find({ userId });
+//         if (cartItems.length === 0) {
+//             return res.status(404).json({ success: false, message: "Cart is empty" });
+//         }
+
+//         const subTotal = cartItems.reduce((sum, item) => {
+//             return sum + (item.price * (item.quantity || 1));
+//         }, 0);
+
+//         // Get wallet
+//         const wallet = await Wallet.findOne({ ownerId: userId });
+//         if (!wallet) {
+//             return res.status(404).json({ success: false, message: "Wallet not found" });
+//         }
+
+//         if (wallet.balance < subTotal) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Insufficient wallet balance",
+//                 walletBalance: wallet.balance,
+//                 totalAmount: subTotal
+//             });
+//         }
+
+//         // Deduct balance
+//         wallet.balance -= subTotal;
+//         await wallet.save();
+
+//         // Pickup details
+//         const pickupRecord = await PickupModel.findOne({ userId }).sort({ createdAt: -1 });
+//         if (!pickupRecord || !pickupRecord.pickupDate) {
+//             return res.status(400).json({ success: false, message: "Pickup date not found", pickupRecord });
+//         }
+//         const pickupDate = pickupRecord.pickupDate;
+//         const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // +7 days
+
+//         // Build services array
+//         const services = cartItems.map(item => ({
+//             serviceId: item.serviceId,
+//             serviceName: item.serviceName || "Service", // You can improve this if you store name in cart
+//             quantity: item.quantity,
+//             unit: item.unit || "item",
+//             unitPrice: item.price,
+//             totalItemPrice: item.price * item.quantity
+//         }));
+
+//         const discountAmount = subTotal * 0.05; // Assuming 5% discount
+//         const totalAmount = subTotal - discountAmount;
+
+//         const orderId = generate14DigitID();
+
+//         const newOrder = new OrderModel({
+//             orderId,
+//             userId,
+//             pickupDate,
+//             deliveryDate,
+//             orderType: req.body.orderType || "Wash & Fold", // Default or provided
+//             services,
+//             subTotal,
+//             discountAmount,
+//             totalAmount,
+//             paymentStatus: "Paid",
+//             paymentMethod: "Wallet"
+//         });
+
+//         await newOrder.save();
+
+//         user.totalOrdersCount = (user.totalOrdersCount || 0) + 1;
+//         await user.save();
+
+//         // Clear cart
+//         await AddtoCartmodel.deleteMany({ userId });
+
+//         return res.status(201).json({
+//             success: true,
+//             message: "Order created successfully and payment deducted",
+//             orderId: newOrder._id,
+//             updatedWalletBalance: wallet.balance,
+//             data: newOrder
+//         });
+
+//     } catch (error) {
+//         console.error("Order creation failed:", error);
+//         return res.status(500).json({
+//             success: false,
+//             message: "Server Error",
+//             error: error.message
+//         });
+//     }
+// };
 
 
 // export const paymentInitiate = async (req, res) => {

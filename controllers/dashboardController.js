@@ -25,6 +25,7 @@
 import { DashboardModel } from '../models/Dashboard.js';
 import { OrderModel } from '../models/Order.js'; 
 import mongoose from 'mongoose';
+import { Wallet } from '../models/Wallet.js';
 
 // 1. GET /api/dashboard/summary
 export const getDashboardSummary = async (req, res) => {
@@ -117,5 +118,48 @@ export const logoutUser = async (req, res) => {
   } catch (err) {
     console.error("Logout error:", err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+// user dashboard
+export const getUserDashboardSummary = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Fetch wallet
+    const wallet = await Wallet.findOne({ ownerId: userId });
+
+    if (!wallet) {
+      return res.status(404).json({
+        success: false,
+        message: "Wallet not found for the user"
+      });
+    }
+
+    // Fetch all orders
+    const allOrders = await OrderModel.find({ userId }).sort({ createdAt: -1 });
+
+    // Filter active orders based on status (not completed/cancelled/rejected)
+    const activeOrders = allOrders.filter(order =>
+      !['Completed', 'Cancelled', 'Rejected'].includes(order.status)
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "User dashboard summary fetched successfully",
+      walletBalance: wallet.balance,
+      totalOrders: allOrders.length,
+      totalActiveOrders: activeOrders.length,
+      allOrders,
+      activeOrders
+    });
+
+  } catch (error) {
+    console.error("Error fetching user dashboard summary:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while fetching user dashboard summary"
+    });
   }
 };

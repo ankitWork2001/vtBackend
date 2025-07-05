@@ -30,6 +30,7 @@ const orderSchema = new mongoose.Schema({
         }
     ],
     subTotal: { type: Number, required: false },
+    
     taxAmount: { type: Number, default: 0 },
     discountAmount: { type: Number, default: 0 },
     totalAmount: { type: Number, required: false },

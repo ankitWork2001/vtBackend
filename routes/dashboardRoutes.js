@@ -21,5 +21,8 @@ router.put('/orders/:id/status', verifyToken, dashboardController.updateOrderSta
 // 5. Logout User
 router.post('/auth/logout', verifyToken, dashboardController.logoutUser);
 
+// user wallet amount
+router.get('/usersummary',verifyToken,dashboardController.getUserDashboardSummary)
+
 
 export { router as dashboardRouter };

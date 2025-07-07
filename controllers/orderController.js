@@ -5,6 +5,7 @@ import { PickupModel } from '../models/PickupInfo.js';
 import { Wallet } from '../models/Wallet.js';
 import { AddtoCartmodel } from '../models/AddToCart.js';
 import { Transaction } from '../models/Transaction.js';
+import { createInvoiceFromOrder } from './invoiceController.js';
 // export const confirmOrder = async (req, res) => {
 
 //     const {serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
@@ -223,12 +224,20 @@ export const createOrder = async (req, res) => {
 
         await AddtoCartmodel.deleteMany({ userId });
 
+        let invoice;
+        try {
+            invoice = await createInvoiceFromOrder(newOrder, user, pickupRecord);
+        } catch (e) {
+            console.error("Invoice creation failed:", e.message);
+        }
+
         return res.status(201).json({
             success: true,
             message: "Order created successfully, payment deducted, and admin wallet credited",
             orderId: newOrder._id,
             updatedWalletBalance: wallet.balance,
-            data: newOrder
+            data: newOrder,
+            invoice
         });
 
     } catch (error) {

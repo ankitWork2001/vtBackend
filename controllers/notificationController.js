@@ -7,7 +7,7 @@ import { NotificationModel } from '../models/NotificationSettings.js';
 export const getNotificationSettings = async (req, res) => {
 
   try {
-    const { userId } = req.query;
+    const userId = req.user.id;
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });

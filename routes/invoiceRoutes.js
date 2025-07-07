@@ -10,10 +10,11 @@ import express from 'express';
 const router = express.Router();
 import {
   getInvoiceById,
-  createInvoice,
   updateInvoice,
   sendInvoice,
-  downloadInvoice
+  downloadInvoice,
+  createInvoiceFromOrder,
+  createInvoice
 } from '../controllers/invoiceController.js';
 
 import {verifyToken} from '../middleware/authMiddleware.js'
@@ -24,6 +25,9 @@ router.get('/invoices/:invoiceId',verifyToken,authorizeRoles('admin'), getInvoic
 
 // POST /api/invoices
 router.post('/invoices',verifyToken,authorizeRoles('admin'), createInvoice);
+
+// this is an extra route - the ivoices are created at the time of create order
+// router.post('/invoicesfromorder',verifyToken,authorizeRoles('admin'), createInvoiceFromOrder);
 
 // PUT /api/invoices/:invoiceId
 router.put('/invoices/:invoiceId',verifyToken,authorizeRoles('admin'), updateInvoice);

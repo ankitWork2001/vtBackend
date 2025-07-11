@@ -5,4 +5,5 @@ const router = express.Router();
 
 router.post("/pickup-information",verifyToken, createPickupInfo);
 router.get("/pickup-saved",verifyToken,savedPickupInfos)
+
 export { router as pickupRouter };

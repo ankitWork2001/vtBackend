@@ -3,6 +3,7 @@ const router = express.Router();
 import * as servicesController from "../controllers/serviceController.js";
 import { verifyToken } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
+
 router.get('/allservices',verifyToken, servicesController.getAllServices);
 router.get('/userservices',verifyToken, servicesController.getUserServices);
 

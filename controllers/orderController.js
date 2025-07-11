@@ -8,22 +8,24 @@ import { Transaction } from '../models/Transaction.js';
 import { createInvoiceFromOrder } from './invoiceController.js';
 // export const confirmOrder = async (req, res) => {
 
-//     const {serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
-//     const userId = req.user.id;
-//     console.log(userId)
+export const confirmOrder = async (req, res) => {
 
-//      if (!userId || !serviceId || !deliveryAddress || !deliveryDate || !totalBill || !pickupDate) {
-//         return res.status(400).json({ error: 'All fields are required.' });
-//     }
+    const {serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate } = req.body;
+    const userId = req.user.id;
+    console.log(userId)
 
-//     try {
-//         const newOrder = new OrderModel({userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
-//         const savedOrder = await newOrder.save();
-//         res.status(201).json(savedOrder);
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// };
+     if (!userId || !serviceId || !deliveryAddress || !deliveryDate || !totalBill || !pickupDate) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    try {
+        const newOrder = new OrderModel({userId, serviceId, deliveryAddress, deliveryDate, totalBill, pickupDate });
+        const savedOrder = await newOrder.save();
+        res.status(201).json(savedOrder);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
 
 
 // to get all orders of a user

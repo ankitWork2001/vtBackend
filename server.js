@@ -5,7 +5,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 import connectDB from './config/db.js';
 
-
 import { authRouter } from "./routes/authRoutes.js";
 import { userRouter } from "./routes/userRoutes.js";
 import { adminRouter } from "./routes/adminRoutes.js";
@@ -23,9 +22,8 @@ import { settingRouter } from "./routes/settingRoutes.js";
 import { invoicesRouter } from "./routes/invoiceRoutes.js"
 import { todoRouter } from "./routes/todoRoutes.js";
 import { planpricingRouter } from "./routes/pricingPlanRoutes.js";
-// import walletRouter from './routes/walletRoutes.js';
 import { walletRouter } from './routes/walletRoute.js';
-
+// import { uploadRoutes } from './routes/uploadRoutes.js';
  
 app.use(express.json());
 
@@ -60,9 +58,9 @@ app.use('/api/invoices', invoicesRouter);
 app.use('/api/todo', todoRouter);
 app.use('/api/planpricing', planpricingRouter);
 app.use('/api/wallet', walletRouter);
+// app.use('/api/upload', uploadRoutes);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the API');
 }
 );
-

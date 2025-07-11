@@ -13,7 +13,6 @@ export const getAllTeamMembers = async (req, res) => {
 };
 
 // POST create a new team member
-
 export const createTeamMember = async (req, res) => {
   try {
     const {
@@ -22,8 +21,7 @@ export const createTeamMember = async (req, res) => {
       email,
       phoneNumber,
       position,
-      gender,
-      photoUrl // optional
+      gender
     } = req.body;
 
     // 1. Validate required fields
@@ -31,13 +29,16 @@ export const createTeamMember = async (req, res) => {
       return res.status(400).json({ message: "All required fields must be filled." });
     }
 
-    // 2. Check for existing email
+    // 2. Check if email already exists
     const existing = await TeamMember.findOne({ email });
     if (existing) {
       return res.status(409).json({ message: "Email already exists." });
     }
 
-    // 3. Create and save new team member
+    // 3. Handle image upload (from multer/cloudinary)
+    const photoUrl = req.file ? req.file.path : "";
+
+    // 4. Create and save team member
     const newMember = new TeamMember({
       firstName,
       lastName,
@@ -45,7 +46,7 @@ export const createTeamMember = async (req, res) => {
       phoneNumber,
       position,
       gender,
-      photoUrl: photoUrl || "" // 
+      photoUrl 
     });
 
     await newMember.save();
@@ -60,6 +61,7 @@ export const createTeamMember = async (req, res) => {
     res.status(500).json({ message: "Server error. Try again later." });
   }
 };
+
 
 // GET one member
 export const getTeamMemberById = async (req, res) => {
@@ -86,20 +88,23 @@ export const updateTeamMember = async (req, res) => {
       email,
       phoneNumber,
       position,
-      gender,
-      photoUrl // comes from body, not req.file
+      gender
     } = req.body;
 
-    // Update fields only if provided
     if (firstName) member.firstName = firstName;
     if (lastName) member.lastName = lastName;
     if (email) member.email = email;
     if (phoneNumber) member.phoneNumber = phoneNumber;
     if (position) member.position = position;
     if (gender) member.gender = gender;
-    if (photoUrl) member.photoUrl = photoUrl;
+
+
+    if (req.file) {
+      member.photoUrl = req.file.path;
+    }
 
     await member.save();
+
     res.status(200).json({
       message: "Team member updated successfully.",
       data: member

@@ -3,6 +3,7 @@ const router = express.Router();
 import * as pricingPlanController from "../controllers/pricingPlanController.js";
 import { verifyToken } from '../middleware/authMiddleware.js'
 import { authorizeRoles } from '../middleware/roleMiddleware.js'
+
 router.get('/allpricingplan', verifyToken, authorizeRoles('admin'), pricingPlanController.pricingController);
 router.get('/perplan/:id', verifyToken, authorizeRoles('admin'), pricingPlanController.specificPlanController);
 router.post('/createplan', verifyToken, authorizeRoles('admin'), pricingPlanController.createPlanController);

@@ -1,5 +1,5 @@
 import { SettingModel } from "../models/Setting.js";
-// admin controllers
+
 // GET /api/settings/general
 export const getGeneralSettings = async (req, res) => {
     try {
@@ -30,22 +30,37 @@ export const updateGeneralSettings = async (req, res) => {
 
 // POST /api/settings/general/logo
 export const createGeneralSettings = async (req, res) => {
-    try {
-        const { logoUrl } = req.body;
-        
+  try {
+    const adminId = req.user.id;
 
-        if (!logoUrl) {
-            return res.status(400).json({ success: false, message: "Logo URL is required" });
-        }
-
-        const updated = await SettingModel.findOneAndUpdate(
-            {},
-            { logoUrl, updatedAt: Date.now() },
-            { new: true, upsert: true }  
-        );
-
-        res.status(200).json({ success: true, message: "Logo updated", data: updated });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "Logo image file is required" });
     }
+
+    const logoUrl = req.file.path;
+
+    const updated = await SettingModel.findOneAndUpdate(
+      { adminId }, 
+      {
+        logoUrl,
+        updatedAt: Date.now(),
+        adminId
+      },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Logo uploaded and saved successfully",
+      data: updated
+    });
+
+  } catch (error) {
+    console.error("Logo Upload Error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Server Error during logo upload",
+      error: error.message
+    });
+  }
 };

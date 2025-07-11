@@ -18,7 +18,6 @@ export const getAllServices = async (req, res) => {
 export const getUserServices = async (req, res) => {
   try {
     const userId = req.user?req.user.id:null;
-    console.log(userId)
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized: User not logged in' });
     }

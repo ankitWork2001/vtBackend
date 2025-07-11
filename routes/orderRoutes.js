@@ -4,8 +4,6 @@ import * as orderController from '../controllers/orderController.js'
 import { verifyToken } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
 
-
-
 router.get('/allorder',verifyToken,authorizeRoles('admin'), orderController.getAllOrders);
 router.get('/specificorder/:id',verifyToken,authorizeRoles('admin'), orderController.getSpecificOrder);
 router.put('/getspecific/:id/status',verifyToken,authorizeRoles('admin'), orderController.updateOrderStatus);
@@ -15,9 +13,8 @@ router.put('/getspecific/:id/payment',verifyToken,authorizeRoles('admin'), order
 
 //user side routes
 router.post('/createorder', verifyToken, orderController.createOrder);
-// router.post('/confirm',verifyToken, orderController.confirmOrder); 
+router.post('/confirm',verifyToken, orderController.confirmOrder); 
 router.get('/', verifyToken, orderController.toGetOrders);
-// router.get('/paymentInitiate', verifyToken, orderController.paymentInitiate);
 router.get('/:id', verifyToken, orderController.orderById); 
 router.get('/:id/cancelled',verifyToken,  orderController.orderCancelled);
 router.get('/:id/delivered', verifyToken, orderController.orderDelivered);

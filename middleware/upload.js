@@ -14,22 +14,23 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
-    let folder = 'laundry_app/misc';
+  let folder = 'laundry_app/misc';
 
-    // Decide folder based on route or role
-    if (req.originalUrl.includes('/user/')) {
-      folder = 'laundry_app/users';
-    } else if (req.originalUrl.includes('/admin')) {
-      folder = 'laundry_app/admins';
-    } else if (req.originalUrl.includes('/team-members')) {
-      folder = 'laundry_app/teams';
-    }
-
-    return {
-      folder,
-      allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-    };
+  if (req.originalUrl.includes('/user/')) {
+    folder = 'laundry_app/users';
+  } else if (req.originalUrl.includes('/admin')) {
+    folder = 'laundry_app/admins';
+  } else if (req.originalUrl.includes('/team-members')) {
+    folder = 'laundry_app/teams';
+  } else if (req.originalUrl.includes('/settings')) {
+    folder = 'laundry_app/admins';
   }
+
+  return {
+    folder,
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+  };
+}
 });
 
 export const upload = multer({ storage });

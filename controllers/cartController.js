@@ -41,7 +41,7 @@ export const getCart = async (req, res) => {
 
   try {
 
-    const { userId } = req.user.id;
+    const userId  = req.user.id;
     const cart = await AddtoCartmodel.find({ userId }).populate('serviceId');
     res.status(200).json({ message: "Cart fetched", data: cart });
 
@@ -73,7 +73,7 @@ export const updateCartItem = async (req, res) => {
 // Remove specific product
 export const removeCartItem = async (req, res) => {
   try {
-    const { userId } = req.user.id;
+    const userId  = req.user.id;
     const { productId } = req.params;
 
     await AddtoCartmodel.deleteOne({ userId, serviceId: productId });
@@ -87,7 +87,7 @@ export const removeCartItem = async (req, res) => {
 // Clear entire cart
 export const clearCart = async (req, res) => {
   try {
-    const { userId } = req.user.id;
+    const  userId  = req.user.id;
 
     await AddtoCartmodel.deleteMany({ userId });
 

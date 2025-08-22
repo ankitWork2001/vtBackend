@@ -10,7 +10,7 @@ console.log(userId)
     const wallet = new Wallet({
       ownerType: 'User',
       ownerId: userId,
-      balance: 0,
+      balance: 5000,
     });
 
     await wallet.save();

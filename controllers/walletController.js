@@ -72,3 +72,22 @@ export const getAdminWallet = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+// dummy controller for deleting wallet
+export const deleteWallet = async (req, res) => {
+  try {
+    const userId = req.user.id; // user id from token/middleware
+
+    const wallet = await Wallet.findOneAndDelete({ ownerType: "User", ownerId: userId });
+
+    if (!wallet) {
+      return res.status(404).json({ success: false, message: "Wallet not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Wallet deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error deleting wallet", error: error.message });
+  }
+};

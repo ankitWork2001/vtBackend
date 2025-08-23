@@ -30,14 +30,15 @@ import { Wallet } from '../models/Wallet.js';
 // 1. GET /api/dashboard/summary
 export const getDashboardSummary = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const userId  = req.user.id;
     // console.log("Fetching dashboard summary for userId:", userId);
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    const dashboard = await DashboardModel.findOne({ userId: new mongoose.Types.ObjectId(userId)});
+    // const dashboard = await DashboardModel.findOne({ userId: new mongoose.Types.ObjectId(userId)});
+    const dashboard = await DashboardModel.findOne({ userId});
     // console.log("Dashboard data:", dashboard);
 
     if (!dashboard) {

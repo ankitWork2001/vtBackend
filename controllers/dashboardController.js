@@ -30,16 +30,15 @@ import { Wallet } from '../models/Wallet.js';
 // 1. GET /api/dashboard/summary
 export const getDashboardSummary = async (req, res) => {
   try {
-    const userId  = req.user.id;
-    // console.log("Fetching dashboard summary for userId:", userId);
+    const userId  = req.user?.id;
+    console.log("Fetching dashboard summary for userId:", userId);
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    const dashboard = await DashboardModel.findOne({ userId: new mongoose.Types.ObjectId(userId)});
-    // const dashboard = await DashboardModel.findOne({ userId});
-    // console.log("Dashboard data:", dashboard);
+    const dashboard = await DashboardModel.findOne({ userId});
+    console.log("Dashboard data:", dashboard);
 
     if (!dashboard) {
       return res.status(404).json({ message: "Dashboard not found" });
@@ -111,16 +110,6 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
-// 5. POST /api/auth/logout
-export const logoutUser = async (req, res) => {
-  try {
-    // Assuming token-based auth
-    res.status(200).json({ message: "Logout successful" });
-  } catch (err) {
-    console.error("Logout error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
 
 
 // user dashboard

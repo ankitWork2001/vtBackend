@@ -1,4 +1,5 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 dotenv.config();
 const app = express();
@@ -26,6 +27,7 @@ import { walletRouter } from './routes/walletRoute.js';
 import { teamRouter } from "./routes/teamRoute.js";
  
 app.use(express.json());
+app.use(cookieParser())
 
 connectDB()
 .then(() => {

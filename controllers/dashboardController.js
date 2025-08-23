@@ -37,8 +37,8 @@ export const getDashboardSummary = async (req, res) => {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    // const dashboard = await DashboardModel.findOne({ userId: new mongoose.Types.ObjectId(userId)});
-    const dashboard = await DashboardModel.findOne({ userId});
+    const dashboard = await DashboardModel.findOne({ userId: new mongoose.Types.ObjectId(userId)});
+    // const dashboard = await DashboardModel.findOne({ userId});
     // console.log("Dashboard data:", dashboard);
 
     if (!dashboard) {

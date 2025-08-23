@@ -93,7 +93,8 @@ export const logout = (req, res) => {
   try {
     res.clearCookie("itoken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       path:"/"
     });

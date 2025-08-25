@@ -1,53 +1,72 @@
-// import { DashboardModel } from '../models/Dashboard.js';
+import { DashboardModel } from '../models/Dashboard.js';
+import { OrderModel } from '../models/Order.js'; 
+import mongoose from 'mongoose';
+import { Wallet } from '../models/Wallet.js';
+import { UserModel } from "../models/User.js";
 
-// GET /api/user/dashboard
-// export const getDashboardData = async (req, res) => {
+
+// // 1. GET /api/dashboard/summary
+// export const getDashboardSummary = async (req, res) => {
 //   try {
-//     const { userId } = req.query;
+//     const userId  = req.user?.id;
+//     console.log("Fetching dashboard summary for userId:", userId);
 
 //     if (!userId) {
 //       return res.status(400).json({ message: "User ID is required" });
 //     }
 
-//     const dashboardData = await DashboardModel.findOne({ userId });
+//     const dashboard = await DashboardModel.findOne({ userId});
+//     console.log("Dashboard data:", dashboard);
 
-//     if (!dashboardData) {
+//     if (!dashboard) {
 //       return res.status(404).json({ message: "Dashboard not found" });
 //     }
 
-//     res.status(200).json({ message: "Dashboard data fetched", data: dashboardData });
-//   } catch (error) {
-//     console.error("Error fetching dashboard:", error);
-//     res.status(500).json({ message: "Server error", error });
+//     res.status(200).json(dashboard);
+//   } catch (err) {
+//     console.error("Dashboard summary error:", err);
+//     res.status(500).json({ message: "Server error" });
 //   }
 // };
 
-import { DashboardModel } from '../models/Dashboard.js';
-import { OrderModel } from '../models/Order.js'; 
-import mongoose from 'mongoose';
-import { Wallet } from '../models/Wallet.js';
 
-// 1. GET /api/dashboard/summary
+
+
 export const getDashboardSummary = async (req, res) => {
   try {
-    const { userId } = req.query;
-    // console.log("Fetching dashboard summary for userId:", userId);
+    // 1. Total Users
+    const totalUsers = await UserModel.countDocuments();
 
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required" });
-    }
+    // 2. Total Orders
+    const totalOrders = await OrderModel.countDocuments();
 
-    const dashboard = await DashboardModel.findOne({ userId: new mongoose.Types.ObjectId(userId)});
-    // console.log("Dashboard data:", dashboard);
+    // 3. Total Sales (from admin wallet)
+    const adminWallet = await Wallet.findOne({ ownerType: "Admin" });
+    const totalSales = adminWallet ? adminWallet.balance : 0;
 
-    if (!dashboard) {
-      return res.status(404).json({ message: "Dashboard not found" });
-    }
+    // 4. Total Pending Orders
+    const totalPending = await OrderModel.countDocuments({ status: "Pending Pickup" });
 
-    res.status(200).json(dashboard);
+    // 5. Latest 10 Orders
+    const latestOrders = await OrderModel.find()
+      .populate("userId", "firstName lastName email") // populate user info
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    // Response
+    res.status(200).json({
+      success: true,
+      summary: {
+        totalUsers,
+        totalOrders,
+        totalSales,
+        totalPending,
+      },
+      latestOrders,
+    });
   } catch (err) {
     console.error("Dashboard summary error:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -110,16 +129,6 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
-// 5. POST /api/auth/logout
-export const logoutUser = async (req, res) => {
-  try {
-    // Assuming token-based auth
-    res.status(200).json({ message: "Logout successful" });
-  } catch (err) {
-    console.error("Logout error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
 
 
 // user dashboard

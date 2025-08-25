@@ -9,21 +9,31 @@ export const signup = async (req, res) => {
   try {
     const { firstName, lastName, username, role, email, phone, password } = req.body;
 
+    // Basic validations
     if (!firstName || !lastName || !username || !role || !email || !phone || !password) {
-      return res.json({ message: "All fields are required", success: false });
+      return res.status(400).json({ message: "All fields are required", success: false });
     }
 
     if (password.length < 6) {
-      return res.json({ message: "Password length should be more than 6", success: false });
+      return res.status(400).json({ message: "Password must be at least 6 characters long", success: false });
     }
 
+    // Check duplicate email
     const oldUser = await UserModel.findOne({ email });
     if (oldUser) {
-      return res.json({ message: "Email is already registered", success: false });
+      return res.status(409).json({ message: "Email is already registered", success: false });
     }
 
+    // Check duplicate username
+    const oldUsername = await UserModel.findOne({ username });
+    if (oldUsername) {
+      return res.status(409).json({ message: "Username is already taken", success: false });
+    }
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Save user
     const newUser = await UserModel.create({
       firstName,
       lastName,
@@ -34,70 +44,90 @@ export const signup = async (req, res) => {
       password: hashedPassword,
     });
 
-    res.status(201).json({ message: "User registered successfully", success: true, newUser });
+    // Remove password before sending
+    const userResponse = { ...newUser._doc };
+    delete userResponse.password;
+
+    res.status(201).json({ message: "User registered successfully", success: true, user: userResponse });
   } catch (error) {
     res.status(500).json({ message: error.message || "Signup failed", success: false });
   }
 };
 
-//Login
+
+
+
+
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // validation
     if (!email || !password) {
-      return res.json({ message: "Email and password are required", success: false });
+      return res.status(400).json({ success: false, message: "Email and password are required" });
     }
 
-    if (!email.includes("@") || !email.includes(".") || email.startsWith("@") || email.endsWith("@")) {
-      return res.json({ message: "Invalid email format", success: false });
+    // simple email validation
+    if (!email.includes("@") || !email.includes(".")) {
+      return res.status(400).json({ success: false, message: "Invalid email format" });
     }
 
+    // check user
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return res.json({ message: "No user found with this email", success: false });
+      return res.status(404).json({ success: false, message: "No user found with this email" });
     }
 
+    // check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.json({ message: "Incorrect password", success: false });
+      return res.status(400).json({ success: false, message: "Incorrect password" });
     }
 
+    // generate token
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
 
+    // set cookie (secure = false for local testing)
     res.cookie("itoken", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 24* 60 * 60 * 1000,
+      secure: false, // use false for localhost
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+      path: "/",
     });
 
-    res.status(200).json({
-      message: "Login successful",
+    return res.status(200).json({
       success: true,
+      message: "Login successful",
       token,
-      user,
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message || "Login failed", success: false });
+    return res.status(500).json({ success: false, message: error.message || "Login failed" });
   }
 };
 
-//Logout
+// ---------------- LOGOUT ----------------
 export const logout = (req, res) => {
   try {
     res.clearCookie("itoken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: false, //must also be false locally
+      sameSite: "strict",
+      path: "/",
     });
 
-    res.json({ message: "Logged out successfully", success: true });
+    return res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message || "Logout failed", success: false });
+    return res.status(500).json({ success: false, message: error.message || "Logout failed" });
   }
 };
+

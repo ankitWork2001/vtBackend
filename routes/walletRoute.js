@@ -4,7 +4,8 @@ import {
   createUserWallet,
   getWallet,
   createAdminWallet,
-  getAdminWallet
+  getAdminWallet,
+  deleteWallet
 } from "../controllers/walletController.js";
 
 import {
@@ -19,6 +20,7 @@ import { authorizeRoles } from '../middleware/roleMiddleware.js';
 // User wallet
 router.post('/wallet/create', verifyToken, authorizeRoles('user'), createUserWallet);
 router.get('/wallet', verifyToken, authorizeRoles('user', 'admin'), getWallet);
+router.delete('/deletewallet', verifyToken, authorizeRoles('user', 'admin'), deleteWallet);
 
 // Admin wallet
 router.post('/wallet/admin/create', verifyToken, authorizeRoles('admin'), createAdminWallet);

@@ -133,7 +133,7 @@ export const logout = (req, res) => {
 
 
 export const authME = (req, res) => {
-  const token = req.cookies.token; // read from cookie
+  const token = req.cookies.itoken; // read from cookie
   if (!token) return res.status(401).json({ msg: "Not logged in" });
 
   try {

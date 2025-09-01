@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import cors from "cors";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,14 @@ import { teamRouter } from "./routes/teamRoute.js";
  
 app.use(express.json());
 app.use(cookieParser())
+const corsOptions = {
+  origin: ["*"],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  credentials: true, 
+};
+
+app.use(cors(corsOptions));
+
 
 connectDB()
 .then(() => {

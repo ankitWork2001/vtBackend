@@ -28,7 +28,7 @@ import { walletRouter } from './routes/walletRoute.js';
 import { teamRouter } from "./routes/teamRoute.js";
  
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
 app.use(cors({
   origin: "http://localhost:5173",

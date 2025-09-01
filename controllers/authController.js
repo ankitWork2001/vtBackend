@@ -134,7 +134,7 @@ export const logout = (req, res) => {
 
 export const authME = (req, res) => {
   const token = req.cookies.itoken; // read from cookie
-  if (!token) return res.status(401).json({ msg: "Not logged in" });
+  if (!token) return res.status(401).json({ msg: "Not logged in from user" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

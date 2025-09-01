@@ -94,21 +94,21 @@ export const login = async (req, res) => {
     // set cookie (secure = false for local testing)
     res.cookie("itoken", token, {
       httpOnly: true,
-      secure: false, // use false for localhost
+      secure: true, // use false for localhost
       // secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({
       success: true,
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-      },
+      message: "Login successful..... ",
+      // token,
+      // user: {
+      //   id: user._id,
+      //   email: user.email,
+      //   role: user.role,
+      // },
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message || "Login failed" });

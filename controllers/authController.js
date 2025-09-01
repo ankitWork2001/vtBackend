@@ -131,3 +131,16 @@ export const logout = (req, res) => {
   }
 };
 
+
+export const authME = (req, res) => {
+  const token = req.cookies.token; // read from cookie
+  if (!token) return res.status(401).json({ msg: "Not logged in" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ user: decoded.user });
+  } catch (err) {
+    res.status(401).json({ msg: "Invalid token" });
+  }
+}
+

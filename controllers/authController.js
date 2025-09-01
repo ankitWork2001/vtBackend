@@ -1,4 +1,4 @@
-import {UserModel} from "../models/User.js";
+import { UserModel } from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv'
@@ -94,9 +94,8 @@ export const login = async (req, res) => {
     // set cookie (secure = false for local testing)
     res.cookie("itoken", token, {
       httpOnly: true,
-      secure: true, // use false for localhost
-      // secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
 

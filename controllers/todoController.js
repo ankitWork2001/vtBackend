@@ -5,8 +5,8 @@ export const getAllTodoController = async (req, res) => {
         if (!todo) {
             return res.status(400).json({ success: false, message: "Items not found!" })
         }
-        if(todo.length===0){
-            return res.status(400).json({ success: true, message: "Todo is empty.",data:todo })
+        if (todo.length === 0) {
+            return res.status(400).json({ success: true, message: "Todo is empty.", data: todo })
 
         }
         res.status(200).json({ success: true, message: "Successfully found all Items.", data: todo });
@@ -22,8 +22,8 @@ export const createTodoController = async (req, res) => {
 
         // const userId = req.body.id;
 
-        if (!description || !dueDate || !isStarred) {
-            return res.status(400).json({ success: false, message: "Each field is required." });
+        if (!description) {
+            return res.status(400).json({ success: false, message: "Description is required." });
         }
 
         const newTask = new TodoTaskModel({
@@ -63,7 +63,7 @@ export const updateTodoController = async (req, res) => {
     }
 };
 
-export const deleteSpecificTodoController = async(req, res) => {
+export const deleteSpecificTodoController = async (req, res) => {
     try {
         const { id } = req.params;
         const deleteTodo = await TodoTaskModel.findByIdAndDelete(id);

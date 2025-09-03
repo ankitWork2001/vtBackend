@@ -137,8 +137,10 @@ export const authME = (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({ user: decoded.user });
+    console.log(decoded.id);
+    res.json({ user: decoded });
   } catch (err) {
+    console.log(err)
     res.status(401).json({ msg: "Invalid token" });
   }
 }

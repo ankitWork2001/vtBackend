@@ -1,7 +1,14 @@
 import express from 'express';
-const router = express.Router();
-import * as authRouter from "../controllers/authController.js";
+import { authME, login, logout, signup } from '../controllers/authController.js';
 
-router.get('/auth', authRouter.authnication);
+const router = express.Router();
+
+
+
+router.post('/auth/signup',signup);
+router.post('/auth/login',login);
+router.post('/auth/logout',logout); 
+router.get('/auth/auth',authME); 
+
 
 export { router as authRouter };

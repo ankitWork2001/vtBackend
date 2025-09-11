@@ -1,7 +1,13 @@
 import express from 'express';
 const router = express.Router();
-import * as pricingController from "../controllers/pricingPlanController.js";
+import * as pricingPlanController from "../controllers/pricingPlanController.js";
+import { verifyToken } from '../middleware/authMiddleware.js'
+import { authorizeRoles } from '../middleware/roleMiddleware.js'
 
-router.get('/pricingplan', pricingController.pricingController);
+router.get('/allpricingplan', verifyToken, authorizeRoles('admin'), pricingPlanController.pricingController);
+router.get('/perplan/:id', verifyToken, authorizeRoles('admin'), pricingPlanController.specificPlanController);
+router.post('/createplan', verifyToken, authorizeRoles('admin'), pricingPlanController.createPlanController);
+router.put('/updateplan/:id', verifyToken, authorizeRoles('admin'), pricingPlanController.updatePlanController);
+router.delete('/deleteplan/:id', verifyToken, authorizeRoles('admin'), pricingPlanController.deletePlanController);
 
 export { router as planpricingRouter };
